@@ -17,5 +17,5 @@
     (apply handler-name args)
     (catch Exception e
       (let [handler (get (get @task-handlers handler-name) (type e) #(println "Untrapped exception: " e))]
-        (handler)))))
+        (handler e)))))
 
