@@ -1,6 +1,6 @@
 # dire
 
-Erlang-style supervisor error handling for Clojure 
+Decomplect error logic. Erlang-style supervisor error handling for Clojure. Inspired by the work of [Joe Armstrong](www.erlang.org/download/armstrong_thesis_2003.pdf).
 
 ## Installation
 
