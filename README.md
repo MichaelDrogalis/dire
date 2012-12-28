@@ -25,7 +25,8 @@ Available on Clojars:
   java.lang.NullPointerException
   (partial println "Ah! A Null Pointer Exception! Do something here!"))
 
-(supervise divider 10 0)```
+(supervise divider 10 0)
+```
 
 ## License
 
