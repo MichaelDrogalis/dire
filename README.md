@@ -14,9 +14,11 @@ Available on Clojars:
 (ns mytask
   (:require [dire.core :refer [deftask defhandler supervise]]))
 
+;;; Define a task to run. It's just a function.
 (deftask divider [a b]
   (/ a b))
 
+;;; For a task, specify an exception that can be raised and a function to deal with it.
 (defhandler divider
   java.lang.ArithmeticException
   (partial println "Cannot divide by 0."))
@@ -25,8 +27,11 @@ Available on Clojars:
   java.lang.NullPointerException
   (partial println "Ah! A Null Pointer Exception! Do something here!"))
 
+;;; Invoke with the task name and it's arguments.
 (supervise divider 10 0)
 ```
+
+If an exception is raised that has no handler, it will be printed to `*out*`.
 
 ## License
 
