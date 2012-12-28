@@ -28,7 +28,8 @@ Available on Clojars:
   (partial println "Ah! A Null Pointer Exception! Do something here!"))
 
 ;;; Invoke with the task name and it's arguments.
-(supervise divider 10 0)
+(supervise divider 10 0)   ; => "Cannot divide by 0."
+(supervise divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
 ```
 
 If an exception is raised that has no handler, it will be printed to `*out*`.
