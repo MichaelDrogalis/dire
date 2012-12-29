@@ -2,9 +2,6 @@
 
 (def task-handlers (atom {}))
 
-(defmacro deftask [task-name args & body]
-  `(defn ~task-name ~args ~@body))
-
 (defmacro defhandler [handler-name exception-type handler-fn]
   `(swap! task-handlers
           (fn [handlers#]
