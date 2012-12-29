@@ -21,11 +21,12 @@ Available on Clojars:
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
 (defhandler divider
   java.lang.ArithmeticException
-  (fn [e] (println "Cannot divide by 0."))) ; 'e' is the exception object
+  ;;; 'e' is the exception object, 'args' are the original arguments to the task.
+  (fn [e & args] (println "Cannot divide by 0.")))
 
 (defhandler divider
   java.lang.NullPointerException
-  (fn [e] (println "Ah! A Null Pointer Exception! Do something here!")))
+  (fn [e & args] (println "Ah! A Null Pointer Exception! Do something here!")))
 
 ;;; Invoke with the task name and it's arguments.
 (supervise divider 10 0)   ; => "Cannot divide by 0."
