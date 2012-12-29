@@ -33,6 +33,7 @@ Available on Clojars:
 (supervise divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
 ```
 
+Self-correcting error handling with ease:
 ```clojure
 (ns mytask
   (:require [dire.core :refer [defhandler supervise]]
@@ -41,7 +42,6 @@ Available on Clojars:
 (defn read-file [file-name]
   (slurp file-name))
 
-;;; Self-correcting error handler.
 (defhandler read-file
   java.io.FileNotFoundException
   (fn [exception file-name & _]
