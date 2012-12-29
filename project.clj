@@ -1,4 +1,4 @@
-(defproject dire "0.1.1-SNAPSHOT"
+(defproject dire "0.1.1"
   :description "Erlang-style supervisor error handling for Clojure"
   :url "https://github.com/MichaelDrogalis/dire"
   :license {:name "Eclipse Public License"
@@ -8,3 +8,4 @@
                  [midje "1.4.0"]
                  [com.stuartsierra/lazytest "1.2.3"]]
   :plugins [[lein-midje "2.0.0-SNAPSHOT"]])
+
