@@ -48,8 +48,7 @@ Self-correcting error handling with ease:
     (touch file-name)
     (supervise read-file file-name)))
 
-(defn -main [& args]
-  (supervise read-file "my-file"))
+(supervise read-file "my-file")
 ```
 
 If an exception is raised that has no handler, it will be printed to `*out*`.
