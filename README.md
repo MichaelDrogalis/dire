@@ -12,10 +12,10 @@ Available on Clojars:
 
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [deftask defhandler supervise]]))
+  (:require [dire.core :refer [defhandler supervise]]))
 
 ;;; Define a task to run. It's just a function.
-(deftask divider [a b]
+(defn divider [a b]
   (/ a b))
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
