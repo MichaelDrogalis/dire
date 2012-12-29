@@ -1,21 +1,20 @@
 (ns dire.core)
 
-(def task-handlers (atom {}))
+(defmacro defhandler [task-name exception-type handler-fn]
+  `(let [task-var# ~(resolve task-name)]
+     (alter-meta! task-var#
+                  assoc :error-handlers (merge (:error-handlers (meta task-var#) {})
+                                               {~exception-type ~handler-fn}))))
 
-(defmacro deftask [task-name args & body]
-  `(defn ~task-name ~args ~@body))
+(defn default-error-handler [exception & _]  
+  (println "Untrapped exception:" exception))
 
-(defmacro defhandler [handler-name exception-type handler-fn]
-  `(swap! task-handlers
-          (fn [handlers#]
-            (assoc handlers#
-              ~handler-name
-              (assoc (get handlers# ~handler-name {}) ~exception-type ~handler-fn)))))
-
-(defn supervise [handler-name & args]
-  (try
-    (apply handler-name args)
-    (catch Exception e
-      (let [handler (get (get @task-handlers handler-name) (type e) #(println "Untrapped exception: " e))]
-        (handler e args)))))
+(defmacro supervise [task-name & args]
+  `(let [task-name# ~task-name
+         task-var# ~(resolve task-name)]
+     (try
+       (task-name# ~@args)
+       (catch Exception e#
+         (let [handler# (get (:error-handlers (meta task-var#)) (type e#) default-error-handler)]
+           (handler# e# ~@args))))))
 

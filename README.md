@@ -6,16 +6,16 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.0"]
+    [dire "0.1.1"]
 
 ## Usage
 
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [deftask defhandler supervise]]))
+  (:require [dire.core :refer [defhandler supervise]]))
 
 ;;; Define a task to run. It's just a function.
-(deftask divider [a b]
+(defn divider [a b]
   (/ a b))
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
