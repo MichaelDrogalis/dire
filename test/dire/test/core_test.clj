@@ -6,6 +6,7 @@
   (/ a b))
 
 (defhandler divider
+  "Catches divide by 0 errors."
   java.lang.ArithmeticException
   (fn [e & args] :division-by-zero-handler))
 
