@@ -20,6 +20,7 @@ Available on Clojars:
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
 (defhandler divider
+  "An optional docstring."
   java.lang.ArithmeticException
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))
