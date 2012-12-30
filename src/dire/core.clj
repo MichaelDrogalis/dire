@@ -7,7 +7,7 @@
                                                {~exception-type ~handler-fn}))))
 
 (defn default-error-handler [exception & _]  
-  (println "Untrapped exception:" exception))
+  (throw exception))
 
 (defmacro supervise [task-name & args]
   `(let [task-name# ~task-name
