@@ -1,4 +1,4 @@
-# dire
+# dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
 Decomplect error logic. Erlang-style supervisor error handling for Clojure. Inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf).
 
@@ -6,7 +6,7 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.1"]
+    [dire "0.1.2"]
 
 ## Usage
 
@@ -20,6 +20,7 @@ Available on Clojars:
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
 (defhandler divider
+  "An optional docstring."
   java.lang.ArithmeticException
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))

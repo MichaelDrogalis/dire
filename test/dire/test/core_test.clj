@@ -6,6 +6,7 @@
   (/ a b))
 
 (defhandler divider
+  "Catches divide by 0 errors."
   java.lang.ArithmeticException
   (fn [e & args] :division-by-zero-handler))
 
@@ -20,8 +21,7 @@
 (defn unhandled-divider [a b]
   (/ a b))
 
-(fact (with-out-str (supervise unhandled-divider 5 0))
-      => "Untrapped exception: #<ArithmeticException java.lang.ArithmeticException: Divide by zero>\n")
+(fact (supervise unhandled-divider 5 0) => (throws java.lang.ArithmeticException))
 
 (ns ns-collision-test
   (:require [midje.sweet :refer :all]
