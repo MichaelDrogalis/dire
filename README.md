@@ -6,7 +6,7 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.2"]
+    [dire "0.1.3"]
 
 ## Usage
 
@@ -50,6 +50,21 @@ Self-correcting error handling with ease:
     (supervise read-file file-name)))
 
 (supervise read-file "my-file")
+```
+
+Dire provides full try/catch/finally semantics:
+```clojure
+(defn add-one [n]
+  (inc n))
+
+(defhandler add-one
+  java.lang.NullPointerException
+  (fn [e & args] (println "Catching the exception.")))
+
+(deffinally add-one
+  (fn [& args] (println "Executing a finally clause.")))
+
+(with-out-str (supervise add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
