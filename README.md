@@ -52,7 +52,7 @@ Self-correcting error handling with ease:
 (supervise read-file "my-file")
 ```
 
-If an exception is raised that has no handler, it will be printed to `*out*`.
+If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
 
