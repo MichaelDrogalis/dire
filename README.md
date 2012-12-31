@@ -81,7 +81,7 @@ Available on Clojars:
   java.lang.IllegalArgumentException
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
-(supervise add-one 2) ; => "Assertion failed for args: 2"
+(supervise add-one 2) ; => "Precondition failure for argument list: (2)"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
