@@ -10,6 +10,7 @@ Available on Clojars:
 
 ## Usage
 
+### Simple Example
 ```clojure
 (ns mytask
   (:require [dire.core :refer [defhandler supervise]]))
@@ -34,7 +35,7 @@ Available on Clojars:
 (supervise divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
 ```
 
-Self-correcting error handling with ease:
+### Self-Correcting Error Handling
 ```clojure
 (ns mytask
   (:require [dire.core :refer [defhandler supervise]]
@@ -52,7 +53,7 @@ Self-correcting error handling with ease:
 (supervise read-file "my-file")
 ```
 
-Dire provides full try/catch/finally semantics:
+### Try/Catch/Finally Semantics
 ```clojure
 (defn add-one [n]
   (inc n))
@@ -67,7 +68,7 @@ Dire provides full try/catch/finally semantics:
 (with-out-str (supervise add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
 ```
 
-Dire also has preconditions:
+### Preconditions
 ```clojure
 (defn add-one [n]
   (inc n))
