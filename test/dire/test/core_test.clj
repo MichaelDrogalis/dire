@@ -1,6 +1,6 @@
 (ns dire.test.core-test
   (:require [midje.sweet :refer :all]
-            [dire.core :refer :all]))
+            [dire.core :refer [defhandler deffinally supervise]]))
 
 (defn divider [a b]
   (/ a b))
@@ -17,6 +17,13 @@
 (fact (supervise divider 10 2) => 5)
 (fact (supervise divider 10 0) => :division-by-zero-handler)
 (fact (supervise divider 10 nil) => :npe-handler)
+
+(deffinally divider
+  "Prints the errors before finishing."
+  (fn [& args]
+    (apply println args)))
+
+(fact (with-out-str (supervise divider 10 nil)) => "10 nil\n")
 
 (defn unhandled-divider [a b]
   (/ a b))
