@@ -67,6 +67,22 @@ Dire provides full try/catch/finally semantics:
 (with-out-str (supervise add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
 ```
 
+Dire also has preconditions:
+```clojure
+(defn add-one [n]
+  (inc n))
+
+(defassertion add-one
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler add-one
+  java.lang.IllegalArgumentException
+  (fn [e & args] (apply str "Assertion failed for args: " args)))
+
+(supervise add-one 2) ; => "Assertion failed for args: 2"
+```
+
 If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
