@@ -31,8 +31,7 @@
 (fact (supervise unhandled-divider 5 0) => (throws java.lang.ArithmeticException))
 
 (ns ns-collision-test
-  (:require [midje.sweet :refer :all]
-            [dire.core :refer :all]))
+  (:require [midje.sweet :refer :all]))
 
 (defn divider [a b]
   (/ a b))
