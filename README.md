@@ -6,10 +6,11 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.3"]
+    [dire "0.1.4"]
 
 ## Usage
 
+### Simple Example
 ```clojure
 (ns mytask
   (:require [dire.core :refer [defhandler supervise]]))
@@ -34,7 +35,7 @@ Available on Clojars:
 (supervise divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
 ```
 
-Self-correcting error handling with ease:
+### Self-Correcting Error Handling
 ```clojure
 (ns mytask
   (:require [dire.core :refer [defhandler supervise]]
@@ -52,7 +53,7 @@ Self-correcting error handling with ease:
 (supervise read-file "my-file")
 ```
 
-Dire provides full try/catch/finally semantics:
+### Try/Catch/Finally Semantics
 ```clojure
 (defn add-one [n]
   (inc n))
@@ -65,6 +66,22 @@ Dire provides full try/catch/finally semantics:
   (fn [& args] (println "Executing a finally clause.")))
 
 (with-out-str (supervise add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
+```
+
+### Preconditions
+```clojure
+(defn add-one [n]
+  (inc n))
+
+(defassertion add-one
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler add-one
+  java.lang.IllegalArgumentException
+  (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
+
+(supervise add-one 2) ; => "Precondition failure for argument list: (2)"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
