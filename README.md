@@ -6,7 +6,7 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.3-SNAPSHOT"]
+    [dire "0.1.3"]
 
 ## Usage
 
