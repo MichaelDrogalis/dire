@@ -79,7 +79,7 @@ Available on Clojars:
 
 (defhandler add-one
   java.lang.IllegalArgumentException
-  (fn [e & args] (apply str "Assertion failed for args: " args)))
+  (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
 (supervise add-one 2) ; => "Assertion failed for args: 2"
 ```
