@@ -30,16 +30,3 @@
 
 (fact (supervise unhandled-divider 5 0) => (throws java.lang.ArithmeticException))
 
-(ns ns-collision-test
-  (:require [midje.sweet :refer :all]
-            [dire.core :refer [defhandler deffinally supervise]]))
-
-(defn divider [a b]
-  (/ a b))
-
-(defhandler divider
-  java.lang.ArithmeticException
-  (fn [e & args] :other-division-handler))
-
-(fact (supervise divider 10 0) => :other-division-handler)
-
