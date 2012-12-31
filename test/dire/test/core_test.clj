@@ -42,4 +42,4 @@
   (fn [e & args] (throw e)))
 
 (fact (supervise add-one 2) => (throws java.lang.IllegalArgumentException))
-
+(fact (supervise add-one 0) => 1)
