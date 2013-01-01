@@ -34,7 +34,9 @@
            (throw+ {:type ::precondition :precondition pre-name#})))
        (task-name# ~@args)
        (catch [:type :dire.core/precondition] {:as conditions#}
-         ((get (:error-handlers (meta task-var#)) {:precondition (:precondition conditions#)}) conditions# ~@args))
+         (if-let [pre-handler# (get (:error-handlers (meta task-var#)) {:precondition (:precondition conditions#)})]
+           (pre-handler# conditions# ~@args)
+           (throw+ conditions#)))
        (catch Exception e#
          (let [handler# (get (:error-handlers (meta task-var#)) (type e#) default-error-handler)]
            (handler# e# ~@args)))
