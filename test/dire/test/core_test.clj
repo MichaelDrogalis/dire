@@ -34,13 +34,14 @@
   (inc n))
 
 (defprecondition add-one
+  :not-two
   (fn [n & args]
     (not= n 2)))
 
 (defhandler add-one
-  java.lang.IllegalArgumentException
-  (fn [e & args] (throw e)))
+  {:precondition :not-two}
+  (fn [e & args] (:precondition e)))
 
-(fact (supervise add-one 2) => (throws java.lang.IllegalArgumentException))
+(fact (supervise add-one 2) => :not-two)
 (fact (supervise add-one 0) => 1)
 
