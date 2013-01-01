@@ -1,6 +1,6 @@
 (ns dire.test.core-test
   (:require [midje.sweet :refer :all]
-            [dire.core :refer [defhandler deffinally defprecondition supervise]]))
+            [dire.core :refer :all]))
 
 (defn divider [a b]
   (/ a b))
@@ -34,7 +34,7 @@
   (inc n))
 
 (defprecondition add-one
-  :not-two
+   :not-two
   (fn [n & args]
     (not= n 2)))
 
@@ -44,4 +44,19 @@
 
 (fact (supervise add-one 2) => :not-two)
 (fact (supervise add-one 0) => 1)
+
+(defn subtract-one [n]
+  (dec n))
+
+(defpostcondition subtract-one
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler subtract-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Failed for " result)))
+
+(fact (supervise subtract-one 3) => "Failed for 2")
+(fact (supervise subtract-one 4) => 3)
 
