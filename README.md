@@ -74,14 +74,17 @@ Available on Clojars:
   (inc n))
 
 (defprecondition add-one
+  ;;; Name of the precondition
+  :not-two
   (fn [n & args]
     (not= n 2)))
 
 (defhandler add-one
-  java.lang.IllegalArgumentException
+  ;;; Pair of exception-type (:precondition) to the actual precondition (:not-two)
+  {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
-(supervise add-one 2) ; => "Precondition failure for argument list: (2)"
+(supervise add-one 2)
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.

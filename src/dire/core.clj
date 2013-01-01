@@ -44,17 +44,3 @@
         (when-let [finally-fn# (:finally (meta task-var#))]
           (finally-fn# ~@args))))))
 
-(defn add-one [n]
-  (inc n))
-
-(defprecondition add-one
-  :not-two
-  (fn [n & args]
-    (not= n 2)))
-
-(defhandler add-one
-  {:precondition :not-two}
-  (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
-
-(supervise add-one 2)
-
