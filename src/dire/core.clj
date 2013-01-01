@@ -16,7 +16,7 @@
      `(let [task-var# ~(resolve task-name)]
         (alter-meta! task-var# assoc :finally ~finally-fn))))
 
-(defmacro defassertion [task-name pred-fn]
+(defmacro defprecondition [task-name pred-fn]
   `(let [task-var# ~(resolve task-name)]
      (alter-meta! task-var# assoc :assertion-fns (conj (:assertion-fns (meta task-var#) []) ~pred-fn))))
 

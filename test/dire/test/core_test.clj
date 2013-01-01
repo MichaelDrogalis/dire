@@ -1,6 +1,6 @@
 (ns dire.test.core-test
   (:require [midje.sweet :refer :all]
-            [dire.core :refer [defhandler deffinally defassertion supervise]]))
+            [dire.core :refer [defhandler deffinally defprecondition supervise]]))
 
 (defn divider [a b]
   (/ a b))
@@ -33,7 +33,7 @@
 (defn add-one [n]
   (inc n))
 
-(defassertion add-one
+(defprecondition add-one
   (fn [n & args]
     (not= n 2)))
 
