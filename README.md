@@ -84,7 +84,24 @@ Available on Clojars:
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
-(supervise add-one 2)
+(supervise add-one 2) ; => "Precondition failure for argument list: (2)"
+```
+
+### Postconditions
+```clojure
+(defn add-one [n]
+  (inc n))
+
+(defpostcondition add-one
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler add-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Postcondition failed for result: " result))
+
+(supervise add-one 1) => "Postcondition failed for result: 2"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
