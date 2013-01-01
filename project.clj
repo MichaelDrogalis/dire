@@ -7,6 +7,7 @@
   :dependencies [[org.clojure/clojure "1.5.0-RC1"]
                  [org.clojure/tools.nrepl "0.2.0-RC1"]
                  [midje "1.4.0"]
-                 [com.stuartsierra/lazytest "1.2.3"]]
+                 [com.stuartsierra/lazytest "1.2.3"]
+                 [slingshot "0.10.3"]]
   :plugins [[lein-midje "2.0.3"]])
 
