@@ -6,7 +6,7 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.1.4"]
+    [dire "0.1.5"]
 
 ## Usage
 
@@ -73,15 +73,35 @@ Available on Clojars:
 (defn add-one [n]
   (inc n))
 
-(defassertion add-one
+(defprecondition add-one
+  ;;; Name of the precondition
+  :not-two
   (fn [n & args]
     (not= n 2)))
 
 (defhandler add-one
-  java.lang.IllegalArgumentException
+  ;;; Pair of exception-type (:precondition) to the actual precondition (:not-two)
+  {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
 (supervise add-one 2) ; => "Precondition failure for argument list: (2)"
+```
+
+### Postconditions
+```clojure
+(defn add-one [n]
+  (inc n))
+
+(defpostcondition add-one
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler add-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Postcondition failed for result: " result))
+
+(supervise add-one 1) => "Postcondition failed for result: 2"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
@@ -91,3 +111,4 @@ If an exception is raised that has no handler, it will be raised up the stack li
 Copyright © 2012 Michael Drogalis
 
 Distributed under the Eclipse Public License, the same as Clojure.
+

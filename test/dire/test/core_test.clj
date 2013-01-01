@@ -1,6 +1,6 @@
 (ns dire.test.core-test
   (:require [midje.sweet :refer :all]
-            [dire.core :refer [defhandler deffinally defassertion supervise]]))
+            [dire.core :refer :all]))
 
 (defn divider [a b]
   (/ a b))
@@ -33,14 +33,30 @@
 (defn add-one [n]
   (inc n))
 
-(defassertion add-one
+(defprecondition add-one
+   :not-two
   (fn [n & args]
     (not= n 2)))
 
 (defhandler add-one
-  java.lang.IllegalArgumentException
-  (fn [e & args] (throw e)))
+  {:precondition :not-two}
+  (fn [e & args] (:precondition e)))
 
-(fact (supervise add-one 2) => (throws java.lang.IllegalArgumentException))
+(fact (supervise add-one 2) => :not-two)
 (fact (supervise add-one 0) => 1)
+
+(defn subtract-one [n]
+  (dec n))
+
+(defpostcondition subtract-one
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+(defhandler subtract-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Failed for " result)))
+
+(fact (supervise subtract-one 3) => "Failed for 2")
+(fact (supervise subtract-one 4) => 3)
 
