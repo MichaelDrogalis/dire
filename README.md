@@ -73,7 +73,7 @@ Available on Clojars:
 (defn add-one [n]
   (inc n))
 
-(defassertion add-one
+(defprecondition add-one
   (fn [n & args]
     (not= n 2)))
 
