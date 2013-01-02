@@ -101,7 +101,7 @@ Available on Clojars:
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result))
 
-(supervise add-one 1) => "Postcondition failed for result: 2"
+(supervise add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
