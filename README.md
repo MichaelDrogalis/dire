@@ -99,7 +99,7 @@ Available on Clojars:
 
 (defhandler add-one
   {:postcondition :not-two}
-  (fn [e result] (str "Postcondition failed for result: " result))
+  (fn [e result] (str "Postcondition failed for result: " result)))
 
 (supervise add-one 1) ; => "Postcondition failed for result: 2"
 ```
