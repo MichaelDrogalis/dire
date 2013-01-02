@@ -27,6 +27,11 @@
      (alter-meta! task-var# assoc :postconditions
                   (assoc (:postconditions (meta task-var#) {}) ~description ~pred-fn))))
 
+(defn eval-preconditions! [task-metadata & args]
+  (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
+    (when-not (apply pre-fn args)
+      (throw+ {:type ::precondition :precondition pre-name}))))
+
 (defn default-error-handler [exception & _]
   (throw exception))
 
@@ -34,9 +39,7 @@
   `(let [task-name# ~task-name
          task-var# ~(resolve task-name)]
      (try+
-      (doseq [[pre-name# pre-fn#] (:preconditions (meta task-var#))]
-        (when-not (pre-fn# ~@args)
-          (throw+ {:type ::precondition :precondition pre-name#})))
+      (eval-preconditions! (meta task-var#) ~@args)
       (let [result# (task-name# ~@args)]
         (doseq [[post-name# post-fn#] (:postconditions (meta task-var#))]
           (when-not (post-fn# result#)
