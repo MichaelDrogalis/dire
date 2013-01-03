@@ -37,6 +37,10 @@
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
 
+(defn eval-finally [task-metadata & args]
+  (when-let [finally-fn (:finally task-metadata)]
+    (apply finally-fn args)))
+
 (defn default-error-handler [exception & _]
   (throw exception))
 
@@ -60,6 +64,5 @@
         (let [handler# (get (:error-handlers (meta task-var#)) (type e#) default-error-handler)]
           (handler# e# ~@args)))
       (finally
-       (when-let [finally-fn# (:finally (meta task-var#))]
-         (finally-fn# ~@args))))))
+       (eval-finally (meta task-var#) ~@args)))))
 
