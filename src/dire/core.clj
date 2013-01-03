@@ -46,23 +46,23 @@
 
 (defmacro supervise [task-name & args]
   `(let [task-name# ~task-name
-         task-var# ~(resolve task-name)]
+         task-meta# (meta ~(resolve task-name))]
      (try+
-      (eval-preconditions (meta task-var#) ~@args)
+      (eval-preconditions task-meta# ~@args)
       (let [result# (task-name# ~@args)]
-        (eval-postconditions (meta task-var#) result# ~@args)
+        (eval-postconditions task-meta# result# ~@args)
         result#)
       (catch [:type :dire.core/precondition] {:as conditions#}
-        (if-let [pre-handler# (get (:error-handlers (meta task-var#)) {:precondition (:precondition conditions#)})]
+        (if-let [pre-handler# (get (:error-handlers task-meta#) {:precondition (:precondition conditions#)})]
           (pre-handler# conditions# ~@args)
           (throw+ conditions#)))
       (catch [:type :dire.core/postcondition] {:as conditions#}
-        (if-let [post-handler# (get (:error-handlers (meta task-var#)) {:postcondition (:postcondition conditions#)})]
+        (if-let [post-handler# (get (:error-handlers task-meta#) {:postcondition (:postcondition conditions#)})]
           (post-handler# conditions# (:result conditions#))
           (throw+ conditions#)))
       (catch Exception e#
-        (let [handler# (get (:error-handlers (meta task-var#)) (type e#) default-error-handler)]
+        (let [handler# (get (:error-handlers task-meta#) (type e#) default-error-handler)]
           (handler# e# ~@args)))
       (finally
-       (eval-finally (meta task-var#) ~@args)))))
+       (eval-finally task-meta# ~@args)))))
 
