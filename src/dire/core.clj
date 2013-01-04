@@ -74,3 +74,13 @@
   (def supervisor (partial supervised-meta (meta task-var)))
   (add-hook task-var #'supervisor))
 
+(defn with-precondition! [task-var description pred-fn]
+  (with-precondition task-var description pred-fn)
+  (def supervisor (partial supervised-meta (meta task-var)))
+  (add-hook task-var #'supervisor))
+
+(defn with-postcondition! [task-var description pred-fn]
+  (with-postcondition task-var description pred-fn)
+  (def supervisor (partial supervised-meta (meta task-var)))
+  (add-hook task-var #'supervisor))
+

@@ -107,7 +107,7 @@ Available on Clojars:
 ### Handlers Without Supervision
 ```clojure
 (defn multiply [a b]
-  (* a b ))
+  (* a b))
 
 ;;; Note the '!'
 (with-handler! #'multiply
@@ -119,7 +119,9 @@ Available on Clojars:
 (multiply 1 nil) ; => :npe
 ```
 
-If an exception is raised that has no handler, it will be raised up the stack like normal.
+### Etc
+- `with-finally`, `with-precondition`, and `with-postcondition` all have similar bang variants as above.
+- If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
 
