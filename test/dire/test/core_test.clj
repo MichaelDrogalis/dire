@@ -60,3 +60,14 @@
 (fact (supervise #'subtract-one 3) => "Failed for 2")
 (fact (supervise #'subtract-one 4) => 3)
 
+(defn multiply [a b]
+  (* a b ))
+
+(with-handler! #'multiply
+  java.lang.NullPointerException
+  (fn [e a b]
+    :npe))
+
+(fact (multiply 1 2) => 2)
+(fact (multiply 1 nil) => :npe)
+
