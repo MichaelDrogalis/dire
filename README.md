@@ -104,6 +104,21 @@ Available on Clojars:
 (supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
+### Handlers Without Supervision
+```clojure
+(defn multiply [a b]
+  (* a b ))
+
+;;; Note the '!'
+(with-handler! #'multiply
+  java.lang.NullPointerException
+  (fn [e a b]
+    :npe))
+
+;;; Note, no call to 'supervise'. Just use the function
+(multiply 1 nil) ; => :npe
+```
+
 If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
