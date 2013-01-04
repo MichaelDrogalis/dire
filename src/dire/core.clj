@@ -44,25 +44,24 @@
 (defn default-error-handler [exception & _]
   (throw exception))
 
-(defmacro supervise [task-name & args]
-  `(let [task-name# ~task-name
-         task-meta# (meta ~(resolve task-name))]
-     (try+
-      (eval-preconditions task-meta# ~@args)
-      (let [result# (task-name# ~@args)]
-        (eval-postconditions task-meta# result# ~@args)
-        result#)
-      (catch [:type :dire.core/precondition] {:as conditions#}
-        (if-let [pre-handler# (get (:error-handlers task-meta#) {:precondition (:precondition conditions#)})]
-          (pre-handler# conditions# ~@args)
-          (throw+ conditions#)))
-      (catch [:type :dire.core/postcondition] {:as conditions#}
-        (if-let [post-handler# (get (:error-handlers task-meta#) {:postcondition (:postcondition conditions#)})]
-          (post-handler# conditions# (:result conditions#))
-          (throw+ conditions#)))
-      (catch Exception e#
-        (let [handler# (get (:error-handlers task-meta#) (type e#) default-error-handler)]
-          (handler# e# ~@args)))
-      (finally
-       (eval-finally task-meta# ~@args)))))
+(defn supervise [task-var & args]
+  (let [task-meta (meta task-var)]
+    (try+
+     (apply eval-preconditions task-meta args)
+     (let [result (apply task-var args)]
+       (apply eval-postconditions task-meta result args)
+       result)
+     (catch [:type :dire.core/precondition] {:as conditions}
+       (if-let [pre-handler (get (:error-handlers task-meta) {:precondition (:precondition conditions)})]
+         (apply pre-handler conditions args)
+         (throw+ conditions)))
+     (catch [:type :dire.core/postcondition] {:as conditions}
+       (if-let [post-handler (get (:error-handlers task-meta) {:postcondition (:postcondition conditions)})]
+         (post-handler conditions (:result conditions))
+         (throw+ conditions)))
+     (catch Exception e
+       (let [handler (get (:error-handlers task-meta) (type e) default-error-handler)]
+         (apply handler e args)))
+     (finally
+      (apply eval-finally task-meta args)))))
 
