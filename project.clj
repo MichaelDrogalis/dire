@@ -8,6 +8,7 @@
                  [org.clojure/tools.nrepl "0.2.0-RC1"]
                  [midje "1.4.0"]
                  [com.stuartsierra/lazytest "1.2.3"]
-                 [slingshot "0.10.3"]]
+                 [slingshot "0.10.3"]
+                 [robert/hooke "1.3.0"]]
   :plugins [[lein-midje "2.0.3"]])
 

@@ -1,5 +1,6 @@
 (ns dire.core
-  (:require [slingshot.slingshot :refer [try+ throw+]]))
+  (:require [slingshot.slingshot :refer [try+ throw+]]
+            [robert.hooke :refer [add-hook]]))
 
 (defn with-handler
   ([task-var docstring? exception-type handler-fn]
@@ -40,7 +41,7 @@
 (defn default-error-handler [exception & _]
   (throw exception))
 
-(defn- supervised-meta [task-var task-meta & args]
+(defn- supervised-meta [task-meta task-var & args]
   (try+
    (apply eval-preconditions task-meta args)
    (let [result (apply task-var args)]
@@ -60,15 +61,16 @@
    (finally
     (apply eval-finally task-meta args))))
 
-(defn supervise
-  ([task-var & args]
-     (apply supervised-meta task-var (meta task-var) args)))
+(defn supervise [task-var & args]
+  (apply supervised-meta (meta task-var) task-var args))
 
 (defn with-handler! [task-var exception-type handler-fn]
   (with-handler task-var exception-type handler-fn)
-  (alter-var-root
-   task-var
-   (fn [f]
-     (fn [& args]
-       (apply supervised-meta f (meta task-var) args)))))
+  (def supervisor (partial supervised-meta (meta task-var)))
+  (add-hook task-var #'supervisor))
+
+(defn with-finally! [task-var finally-fn]
+  (with-finally task-var finally-fn)
+  (def supervisor (partial supervised-meta (meta task-var)))
+  (add-hook task-var #'supervisor))
 
