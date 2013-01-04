@@ -31,8 +31,8 @@ Available on Clojars:
   (fn [e & args] (println "Ah! A Null Pointer Exception! Do something here!")))
 
 ;;; Invoke with the task name and it's arguments.
-(supervise divider 10 0)   ; => "Cannot divide by 0."
-(supervise divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
+(supervise #'divider 10 0)   ; => "Cannot divide by 0."
+(supervise #'divider 10 nil) ; => "Ah! A Null Pointer Exception! Do something here!"
 ```
 
 ### Self-Correcting Error Handling
@@ -48,9 +48,9 @@ Available on Clojars:
   java.io.FileNotFoundException
   (fn [exception file-name & _]
     (touch file-name)
-    (supervise read-file file-name)))
+    (supervise #'read-file file-name)))
 
-(supervise read-file "my-file")
+(supervise #'read-file "my-file")
 ```
 
 ### Try/Catch/Finally Semantics
@@ -65,7 +65,7 @@ Available on Clojars:
 (deffinally add-one
   (fn [& args] (println "Executing a finally clause.")))
 
-(with-out-str (supervise add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
+(with-out-str (supervise #'add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
 ```
 
 ### Preconditions
@@ -84,7 +84,7 @@ Available on Clojars:
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
-(supervise add-one 2) ; => "Precondition failure for argument list: (2)"
+(supervise #'add-one 2) ; => "Precondition failure for argument list: (2)"
 ```
 
 ### Postconditions
@@ -101,7 +101,7 @@ Available on Clojars:
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
 
-(supervise add-one 1) ; => "Postcondition failed for result: 2"
+(supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
 If an exception is raised that has no handler, it will be raised up the stack like normal.
