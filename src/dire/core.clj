@@ -1,31 +1,27 @@
 (ns dire.core
   (:require [slingshot.slingshot :refer [try+ throw+]]))
 
-(defmacro defhandler
-  ([task-name docstring? exception-type handler-fn]
-     `(defhandler ~task-name ~exception-type ~handler-fn))
-  ([task-name exception-type handler-fn]
-     `(let [task-var# ~(resolve task-name)]
-        (alter-meta! task-var# assoc :error-handlers
-                     (merge (:error-handlers (meta task-var#) {})
-                            {~exception-type ~handler-fn})))))
+(defn defhandler
+  ([task-var docstring? exception-type handler-fn]
+     (defhandler task-var exception-type handler-fn))
+  ([task-var exception-type handler-fn]
+     (alter-meta! task-var assoc :error-handlers
+                  (merge (:error-handlers (meta task-var) {})
+                         {exception-type handler-fn}))))
 
-(defmacro deffinally
-  ([task-name docstring? finally-fn]
-     `(deffinally ~task-name ~finally-fn))
-  ([task-name finally-fn]
-     `(let [task-var# ~(resolve task-name)]
-        (alter-meta! task-var# assoc :finally ~finally-fn))))
+(defn deffinally
+  ([task-var docstring? finally-fn]
+     (deffinally task-var finally-fn))
+  ([task-var finally-fn]
+     (alter-meta! task-var assoc :finally finally-fn)))
 
-(defmacro defprecondition [task-name description pred-fn]
-  `(let [task-var# ~(resolve task-name)]
-     (alter-meta! task-var# assoc :preconditions
-                  (assoc (:preconditions (meta task-var#) {}) ~description ~pred-fn))))
+(defn defprecondition [task-var description pred-fn]
+  (alter-meta! task-var assoc :preconditions
+               (assoc (:preconditions (meta task-var) {}) description pred-fn)))
 
-(defmacro defpostcondition [task-name description pred-fn]
-  `(let [task-var# ~(resolve task-name)]
-     (alter-meta! task-var# assoc :postconditions
-                  (assoc (:postconditions (meta task-var#) {}) ~description ~pred-fn))))
+(defn defpostcondition [task-var description pred-fn]
+  (alter-meta! task-var assoc :postconditions
+               (assoc (:postconditions (meta task-var) {}) description pred-fn)))
 
 (defn eval-preconditions [task-metadata & args]
   (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
