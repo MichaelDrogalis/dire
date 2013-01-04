@@ -64,23 +64,23 @@
 (defn supervise [task-var & args]
   (apply supervised-meta (meta task-var) task-var args))
 
-(defn with-handler! [task-var exception-type handler-fn]
-  (with-handler task-var exception-type handler-fn)
+(defn hook-supervisor-to-fn [task-var]
   (def supervisor (partial supervised-meta (meta task-var)))
   (add-hook task-var #'supervisor))
+
+(defn with-handler! [task-var exception-type handler-fn]
+  (with-handler task-var exception-type handler-fn)
+  (hook-supervisor-to-fn task-var))
 
 (defn with-finally! [task-var finally-fn]
   (with-finally task-var finally-fn)
-  (def supervisor (partial supervised-meta (meta task-var)))
-  (add-hook task-var #'supervisor))
+  (hook-supervisor-to-fn task-var))
 
 (defn with-precondition! [task-var description pred-fn]
   (with-precondition task-var description pred-fn)
-  (def supervisor (partial supervised-meta (meta task-var)))
-  (add-hook task-var #'supervisor))
+  (hook-supervisor-to-fn task-var))
 
 (defn with-postcondition! [task-var description pred-fn]
   (with-postcondition task-var description pred-fn)
-  (def supervisor (partial supervised-meta (meta task-var)))
-  (add-hook task-var #'supervisor))
+  (hook-supervisor-to-fn task-var))
 
