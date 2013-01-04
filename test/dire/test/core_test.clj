@@ -5,12 +5,12 @@
 (defn divider [a b]
   (/ a b))
 
-(defhandler #'divider
+(with-handler #'divider
   "Catches divide by 0 errors."
   java.lang.ArithmeticException
   (fn [e & args] :division-by-zero-handler))
 
-(defhandler #'divider
+(with-handler #'divider
   java.lang.NullPointerException
   (fn [e & args] :npe-handler))
 
@@ -18,7 +18,7 @@
 (fact (supervise #'divider 10 0) => :division-by-zero-handler)
 (fact (supervise #'divider 10 nil) => :npe-handler)
 
-(deffinally #'divider
+(with-finally #'divider
   "Prints the errors before finishing."
   (fn [& args]
     (apply println args)))
@@ -33,12 +33,12 @@
 (defn add-one [n]
   (inc n))
 
-(defprecondition #'add-one
+(with-precondition #'add-one
    :not-two
   (fn [n & args]
     (not= n 2)))
 
-(defhandler #'add-one
+(with-handler #'add-one
   {:precondition :not-two}
   (fn [e & args] (:precondition e)))
 
@@ -48,12 +48,12 @@
 (defn subtract-one [n]
   (dec n))
 
-(defpostcondition #'subtract-one
+(with-postcondition #'subtract-one
   :not-two
   (fn [n & args]
     (not= n 2)))
 
-(defhandler #'subtract-one
+(with-handler #'subtract-one
   {:postcondition :not-two}
   (fn [e result] (str "Failed for " result)))
 

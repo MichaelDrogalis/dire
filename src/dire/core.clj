@@ -1,25 +1,25 @@
 (ns dire.core
   (:require [slingshot.slingshot :refer [try+ throw+]]))
 
-(defn defhandler
+(defn with-handler
   ([task-var docstring? exception-type handler-fn]
-     (defhandler task-var exception-type handler-fn))
+     (with-handler task-var exception-type handler-fn))
   ([task-var exception-type handler-fn]
      (alter-meta! task-var assoc :error-handlers
                   (merge (:error-handlers (meta task-var) {})
                          {exception-type handler-fn}))))
 
-(defn deffinally
+(defn with-finally
   ([task-var docstring? finally-fn]
-     (deffinally task-var finally-fn))
+     (with-finally task-var finally-fn))
   ([task-var finally-fn]
      (alter-meta! task-var assoc :finally finally-fn)))
 
-(defn defprecondition [task-var description pred-fn]
+(defn with-precondition [task-var description pred-fn]
   (alter-meta! task-var assoc :preconditions
                (assoc (:preconditions (meta task-var) {}) description pred-fn)))
 
-(defn defpostcondition [task-var description pred-fn]
+(defn with-postcondition [task-var description pred-fn]
   (alter-meta! task-var assoc :postconditions
                (assoc (:postconditions (meta task-var) {}) description pred-fn)))
 
