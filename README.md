@@ -13,20 +13,20 @@ Available on Clojars:
 ### Simple Example
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [defhandler supervise]]))
+  (:require [dire.core :refer [with-handler supervise]]))
 
 ;;; Define a task to run. It's just a function.
 (defn divider [a b]
   (/ a b))
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
-(defhandler #'divider
+(with-handler #'divider
   "An optional docstring."
   java.lang.ArithmeticException
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))
 
-(defhandler #'divider
+(with-handler #'divider
   java.lang.NullPointerException
   (fn [e & args] (println "Ah! A Null Pointer Exception! Do something here!")))
 
@@ -38,13 +38,13 @@ Available on Clojars:
 ### Self-Correcting Error Handling
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [defhandler supervise]]
+  (:require [dire.core :refer [with-handler supervise]]
             [fs.core :refer [touch]]))
 
 (defn read-file [file-name]
   (slurp file-name))
 
-(defhandler #'read-file
+(with-handler #'read-file
   java.io.FileNotFoundException
   (fn [exception file-name & _]
     (touch file-name)
@@ -58,11 +58,11 @@ Available on Clojars:
 (defn add-one [n]
   (inc n))
 
-(defhandler #'add-one
+(with-handler #'add-one
   java.lang.NullPointerException
   (fn [e & args] (println "Catching the exception.")))
 
-(deffinally #'add-one
+(with-finally #'add-one
   (fn [& args] (println "Executing a finally clause.")))
 
 (with-out-str (supervise #'add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
@@ -73,13 +73,13 @@ Available on Clojars:
 (defn add-one [n]
   (inc n))
 
-(defprecondition #'add-one
+(with-precondition #'add-one
   ;;; Name of the precondition
   :not-two
   (fn [n & args]
     (not= n 2)))
 
-(defhandler #'add-one
+(with-handler #'add-one
   ;;; Pair of exception-type (:precondition) to the actual precondition (:not-two)
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
@@ -92,12 +92,12 @@ Available on Clojars:
 (defn add-one [n]
   (inc n))
 
-(defpostcondition #'add-one
+(with-postcondition #'add-one
   :not-two
   (fn [n & args]
     (not= n 2)))
 
-(defhandler #'add-one
+(with-handler #'add-one
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
 
