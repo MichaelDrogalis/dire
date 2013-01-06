@@ -91,18 +91,21 @@
   (with-handler task-var exception-type handler-fn)
   (hook-supervisor-to-fn task-var))
 
-(defn with-finally! [task-var finally-fn]
+(defn with-finally!
   "Same as with-finally, but task-var can be invoked without supervise."
+  [task-var finally-fn]
   (with-finally task-var finally-fn)
   (hook-supervisor-to-fn task-var))
 
-(defn with-precondition! [task-var description pred-fn]
+(defn with-precondition!
   "Same as with-precondition, but task-var can be invoked without supervise."
+  [task-var description pred-fn]
   (with-precondition task-var description pred-fn)
   (hook-supervisor-to-fn task-var))
 
-(defn with-postcondition! [task-var description pred-fn]
+(defn with-postcondition!
   "Same as with-postcondition, but task-var can be invoked without supervise."
+  [task-var description pred-fn]
   (with-postcondition task-var description pred-fn)
   (hook-supervisor-to-fn task-var))
 
