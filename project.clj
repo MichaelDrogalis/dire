@@ -10,5 +10,6 @@
                  [com.stuartsierra/lazytest "1.2.3"]
                  [slingshot "0.10.3"]
                  [robert/hooke "1.3.0"]]
-  :plugins [[lein-midje "2.0.3"]])
+  :plugins [[lein-midje "2.0.3"]
+            [codox "0.6.4"]])
 
