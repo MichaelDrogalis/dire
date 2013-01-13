@@ -108,7 +108,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
-### Handlers Without Supervision
+### Look Ma! No Supervisor!
 ```clojure
 (defn multiply [a b]
   (* a b))
