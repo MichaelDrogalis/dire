@@ -8,6 +8,10 @@ Available on Clojars:
 
     [dire "0.2.0"]
 
+## API
+
+Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
+
 ## Usage
 
 ### Simple Example
