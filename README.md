@@ -116,7 +116,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (with-pre-hook #'times
   (fn [a b] (println "Logging something interesting."))
 
-(times 1 2) ; => "Logging something interesting.", 2
+(supervise #'times 1 2) ; => "Logging something interesting.", 2
 ```
 
 - Multiple pre-hooks evaluate in *arbitrary* order.
