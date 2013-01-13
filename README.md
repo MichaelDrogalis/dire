@@ -6,7 +6,7 @@ Decomplect error logic. Erlang-style supervisor error handling for Clojure. Insp
 
 Available on Clojars:
 
-    [dire "0.2.0"]
+    [dire "0.2.1"]
 
 ## API
 
@@ -108,6 +108,20 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
+### Pre-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-pre-hook #'times
+  (fn [a b] (println "Logging something interesting."))
+
+(supervise #'times 1 2) ; => "Logging something interesting.", 2
+```
+
+- Multiple pre-hooks evaluate in *arbitrary* order.
+- There's no `with-post-hook`. You have `with-finally` for that.
+
 ### Look Ma! No Supervisor!
 ```clojure
 (defn multiply [a b]
@@ -124,7 +138,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ```
 
 ### Etc
-- `with-finally`, `with-precondition`, and `with-postcondition` all have similar bang variants as above.
+- `with-finally`, `with-precondition`, `with-postcondition`, and `with-pre-hook` all have similar bang variants as above.
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License

@@ -60,3 +60,13 @@
 (fact (supervise #'subtract-one 3) => "Failed for 2")
 (fact (supervise #'subtract-one 4) => 3)
 
+(defn loggable-multiplier [a b]
+  (* a b))
+
+(with-pre-hook #'loggable-multiplier
+  (fn [a b]
+    (println "Logging" a "and" b)))
+
+(with-out-str (fact (supervise #'loggable-multiplier 1 2) => 2))
+(fact (with-out-str (supervise #'loggable-multiplier 1 2)) => "Logging 1 and 2\n")
+

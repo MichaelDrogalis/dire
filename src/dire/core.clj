@@ -37,6 +37,13 @@
   (alter-meta! task-var assoc :postconditions
                (assoc (:postconditions (meta task-var) {}) description pred-fn)))
 
+(defn with-pre-hook [task-var f]
+  "After task-var is invoked, preconditions are evaluated. If all preconditions
+   return true, f is invoked. You can register any number of pre-hooks. They are
+   not guaranteed to run in any specific order. Pre-hooks are useful for logging."
+  (alter-meta! task-var assoc :pre-hooks
+               (conj (:pre-hooks (meta task-var) #{}) f)))
+
 (defn- eval-preconditions
   [task-metadata & args]
   (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
@@ -48,6 +55,10 @@
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
 
+(defn- eval-pre-hooks [task-metadata & args]
+  (doseq [f (:pre-hooks task-metadata)]
+    (apply f args)))
+
 (defn- eval-finally [task-metadata & args]
   (when-let [finally-fn (:finally task-metadata)]
     (apply finally-fn args)))
@@ -58,6 +69,7 @@
 (defn- supervised-meta [task-meta task-var & args]
   (try+
    (apply eval-preconditions task-meta args)
+   (apply eval-pre-hooks task-meta args)
    (let [result (apply task-var args)]
      (apply eval-postconditions task-meta result args)
      result)
@@ -107,5 +119,11 @@
   "Same as with-postcondition, but task-var can be invoked without supervise."
   [task-var description pred-fn]
   (with-postcondition task-var description pred-fn)
+  (hook-supervisor-to-fn task-var))
+
+(defn with-pre-hook!
+  "Same as with-pre-hook, but task-var can be invoked without supervise."
+  [task-var f]
+  (with-pre-hook task-var f)
   (hook-supervisor-to-fn task-var))
 

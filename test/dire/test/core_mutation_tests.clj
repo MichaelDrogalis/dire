@@ -37,3 +37,8 @@
 
 (fact (multiply 3 2) => "Post failed")
 
+(with-pre-hook! #'multiply
+  (fn [a b]
+    (println "Logging" a "and" b)))
+
+(fact (with-out-str (multiply 5 3)) => "Logging 5 and 3\n")
