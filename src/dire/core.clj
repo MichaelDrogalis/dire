@@ -118,3 +118,9 @@
   (with-postcondition task-var description pred-fn)
   (hook-supervisor-to-fn task-var))
 
+(defn with-pre-hook!
+  "Same as with-pre-hook, but task-var can be invoked without supervise."
+  [task-var f]
+  (with-pre-hook task-var f)
+  (hook-supervisor-to-fn task-var))
+
