@@ -24,6 +24,10 @@
   (alter-meta! task-var assoc :postconditions
                (assoc (:postconditions (meta task-var) {}) description pred-fn)))
 
+(defn with-pre-hook [task-var f]
+  (alter-meta! task-var assoc :pre-hooks
+               (conj (:pre-hooks (meta task-var) []) f)))
+
 (defn eval-preconditions [task-metadata & args]
   (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
     (when-not (apply pre-fn args)
@@ -33,6 +37,10 @@
   (doseq [[post-name post-fn] (:postconditions task-metadata)]
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
+
+(defn eval-pre-hooks [task-metadata & args]
+  (doseq [f (:pre-hooks task-metadata)]
+    (apply f args)))
 
 (defn eval-finally [task-metadata & args]
   (when-let [finally-fn (:finally task-metadata)]
@@ -44,6 +52,7 @@
 (defn- supervised-meta [task-meta task-var & args]
   (try+
    (apply eval-preconditions task-meta args)
+   (apply eval-pre-hooks task-meta args)
    (let [result (apply task-var args)]
      (apply eval-postconditions task-meta result args)
      result)
