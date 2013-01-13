@@ -138,7 +138,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ```
 
 ### Etc
-- `with-finally`, `with-precondition`, and `with-postcondition` all have similar bang variants as above.
+- `with-finally`, `with-precondition`, `with-postcondition`, and `with-pre-hook` all have similar bang variants as above.
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
