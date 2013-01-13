@@ -120,7 +120,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ```
 
 - Multiple pre-hooks evaluate in *arbitrary* order.
-- There's no with-post-hook. You have `with-finally` for that.
+- There's no `with-post-hook`. You have `with-finally` for that.
 
 ### Look Ma! No Supervisor!
 ```clojure
