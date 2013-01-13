@@ -108,6 +108,20 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
+### Pre-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-pre-hook #'times
+  (fn [a b] (println "Logging something interesting."))
+
+(times 1 2) ; => "Logging something interesting.", 2
+```
+
+- Multiple pre-hooks evaluate in *arbitrary* order.
+- There's no with-post-hook. You have `with-finally` for that.
+
 ### Look Ma! No Supervisor!
 ```clojure
 (defn multiply [a b]
