@@ -1,6 +1,11 @@
 # dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
-Decomplect error logic. Erlang-style supervisor error handling for Clojure. Inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf).
+Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
+
+Provides two modes:
+
+1. The silent AOP style, using the bang'ed commands!
+2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor.
 
 ## Installation
 
@@ -12,7 +17,97 @@ Available on Clojars:
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
-## Usage
+## Usage: Silent / AOP Mode
+
+### Simple Example
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-handler!]]))
+
+;;; Define a task to run. It's just a function.
+(defn divider [a b]
+  (/ a b))
+
+;;; For a task, specify an exception that can be raised and a function to deal with it.
+(with-handler! #'divider
+  java.lang.ArithmeticException
+  ;;; 'e' is the exception object, 'args' are the original arguments to the task.
+  (fn [e & args] (println "Cannot divide by 0.")))
+
+(divider 10 0)    ; => "Cannot divide by 0."
+```
+
+### Try/Catch/Finally Semantics
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-handler! with-finally!]]))
+
+;;; Define a task to run. It's just a function.
+(defn divider [a b]
+  (/ a b))
+
+(with-handler! #'divider
+  java.lang.ArithmeticException
+  (fn [e & args] (println "Catching the exception.")))
+
+(with-finally! #'divider
+  (fn [& args] (println "Executing a finally clause.")))
+
+(divider 10 0) ; => "Catching the exception.\nExecuting a finally clause.\n"
+```
+
+### Preconditions
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-precondition!]]))
+
+(defn add-one [n]
+  (inc n))
+
+(with-precondition! #'add-one
+  ;;; Name of the with-precondition
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+(add-one 2) ; ; => "Precondition failure for argument list: (2)"
+```
+
+### Postconditions
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-postcondition!]]))
+
+(defn add-one [n]
+  (inc n))
+
+(with-postcondition! #'add-one
+  ;;; Name of the with-precondition
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+
+; (add-one 1) ; ; => "Precondition failure for reault: (2)"
+```
+
+### Pre-hooks
+```clojure
+(ns mydire.prehook
+  (:require [dire.core :refer [with-pre-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-pre-hook! #'times
+  (fn [a b] (println "Logging something interesting.")))
+
+;(times 21 2)    ; => "Logging something interesting."
+```
+
+- Multiple pre-hooks evaluate in arbitrary order.
+- There's no `with-post-hook`. You have `with-finally` for that.
+
+## Usage: Erlang Style with supervise
 
 ### Simple Example
 ```clojure
@@ -122,23 +217,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - Multiple pre-hooks evaluate in *arbitrary* order.
 - There's no `with-post-hook`. You have `with-finally` for that.
 
-### Look Ma! No Supervisor!
-```clojure
-(defn multiply [a b]
-  (* a b))
-
-;;; Note the '!'
-(with-handler! #'multiply
-  java.lang.NullPointerException
-  (fn [e a b]
-    :npe))
-
-;;; Note, no call to 'supervise'. Just use the function
-(multiply 1 nil) ; => :npe
-```
-
 ### Etc
-- `with-finally`, `with-precondition`, `with-postcondition`, and `with-pre-hook` all have similar bang variants as above.
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
@@ -146,4 +225,3 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 Copyright © 2012 Michael Drogalis
 
 Distributed under the Eclipse Public License, the same as Clojure.
-
