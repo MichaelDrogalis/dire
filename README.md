@@ -1,6 +1,6 @@
 # dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
-Decomplect error logic. Error handling and pre- & post-consitions for Clojure. 
+Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
 
 Provides two modes:
 
@@ -217,23 +217,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - Multiple pre-hooks evaluate in *arbitrary* order.
 - There's no `with-post-hook`. You have `with-finally` for that.
 
-### Look Ma! No Supervisor!
-```clojure
-(defn multiply [a b]
-  (* a b))
-
-;;; Note the '!'
-(with-handler! #'multiply
-  java.lang.NullPointerException
-  (fn [e a b]
-    :npe))
-
-;;; Note, no call to 'supervise'. Just use the function
-(multiply 1 nil) ; => :npe
-```
-
 ### Etc
-- `with-finally`, `with-precondition`, `with-postcondition`, and `with-pre-hook` all have similar bang variants as above.
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 
 ## License
@@ -241,4 +225,3 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 Copyright © 2012 Michael Drogalis
 
 Distributed under the Eclipse Public License, the same as Clojure.
-
