@@ -1,7 +1,9 @@
 # dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
-Decomplect error logic. Error handling and pre- / post-Consitions for Clojure. 
-Has two modes:
+Decomplect error logic. Error handling and pre- & post-consitions for Clojure. 
+
+Provides two modes:
+
 1. The silent AOP style, using the bang'ed commands!
 2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor.
 
@@ -15,7 +17,7 @@ Available on Clojars:
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
-## Usage (Silent / AOP Mode)
+## Usage: Silent / AOP Mode
 
 ### Simple Example
 ```clojure
@@ -105,7 +107,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - Multiple pre-hooks evaluate in arbitrary order.
 - There's no with-post-hook. You have with-finally for that.
 
-## Usage (Elang Style with supervise)
+## Usage: Erlang Style with supervise
 
 ### Simple Example
 ```clojure
