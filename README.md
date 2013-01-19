@@ -34,7 +34,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))
 
-(divider 10 0)    ; => "Cannot divide by 0."
+(divider 10 0) ; => "Cannot divide by 0."
 ```
 
 ### Try/Catch/Finally Semantics
