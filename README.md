@@ -2,10 +2,10 @@
 
 Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
 
-Provides two modes:
+Provides two flavors:
 
-1. The silent AOP style, using the bang'ed commands!
-2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor.
+1. The drop-in style, using functions ending in '!'
+2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor
 
 ## Installation
 
@@ -17,7 +17,7 @@ Available on Clojars:
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
-## Usage: Silent / AOP Mode
+## Usage: Drop-in Flavor
 
 ### Simple Example
 ```clojure
@@ -103,9 +103,6 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
 ;(times 21 2)    ; => "Logging something interesting."
 ```
-
-- Multiple pre-hooks evaluate in arbitrary order.
-- There's no `with-post-hook`. You have `with-finally` for that.
 
 ## Usage: Erlang Style with supervise
 
@@ -214,11 +211,10 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'times 1 2) ; => "Logging something interesting.", 2
 ```
 
-- Multiple pre-hooks evaluate in *arbitrary* order.
-- There's no `with-post-hook`. You have `with-finally` for that.
-
 ### Etc
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
+- Multiple pre-hooks evaluate in *arbitrary* order.
+- There's no `with-post-hook`. You have `with-finally` for that.
 
 ## License
 
