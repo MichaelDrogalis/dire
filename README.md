@@ -87,7 +87,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (fn [n & args]
     (not= n 2)))
 
-; (add-one 1) ; ; => "Precondition failure for reault: (2)"
+(add-one 1) ; ; => "Precondition failure for reault: (2)"
 ```
 
 ### Pre-hooks
@@ -101,7 +101,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (with-pre-hook! #'times
   (fn [a b] (println "Logging something interesting.")))
 
-;(times 21 2)    ; => "Logging something interesting."
+(times 21 2)    ; => "Logging something interesting."
 ```
 
 ## Usage: Erlang Style with supervise
