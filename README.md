@@ -74,7 +74,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
-(add-one 2) ; ; => "Precondition failure for argument list: (2)"
+(add-one 2) ; => "Precondition failure for argument list: (2)"
 ```
 
 ### Postconditions
@@ -95,7 +95,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
 
-(add-one 1) ; ; => "Precondition failure for reault: (2)"
+(add-one 1) ; => "Precondition failure for reault: (2)"
 ```
 
 ### Pre-hooks
@@ -109,7 +109,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (with-pre-hook! #'times
   (fn [a b] (println "Logging something interesting.")))
 
-(times 21 2)    ; => "Logging something interesting."
+(times 21 2) ; => "Logging something interesting."
 ```
 
 ## Usage: Erlang Style with supervise
