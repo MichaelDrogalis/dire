@@ -59,7 +59,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ### Preconditions
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [with-precondition!]]))
+  (:require [dire.core :refer [with-precondition! with-handler!]]))
 
 (defn add-one [n]
   (inc n))
@@ -69,6 +69,10 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   :not-two
   (fn [n & args]
     (not= n 2)))
+    
+(with-handler! #'add-one
+  {:precondition :not-two}
+  (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
 
 (add-one 2) ; ; => "Precondition failure for argument list: (2)"
 ```
@@ -76,7 +80,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ### Postconditions
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [with-postcondition!]]))
+  (:require [dire.core :refer [with-postcondition! with-handler!]]))
 
 (defn add-one [n]
   (inc n))
@@ -86,6 +90,10 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   :not-two
   (fn [n & args]
     (not= n 2)))
+    
+(with-handler! #'add-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Postcondition failed for result: " result)))
 
 (add-one 1) ; ; => "Precondition failure for reault: (2)"
 ```
