@@ -2,7 +2,7 @@
 
 Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
 
-Provides two flavors:
+Ships with two flavors:
 
 1. The drop-in style, using functions ending in '!'
 2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor
