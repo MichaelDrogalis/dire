@@ -219,7 +219,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'times 1 2) ; => "Logging something interesting.", 2
 ```
 
-### Etc
+## Etc
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 - Multiple pre-hooks evaluate in *arbitrary* order.
 - There's no `with-post-hook`. You have `with-finally` for that.
