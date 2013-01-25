@@ -229,3 +229,4 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 Copyright © 2012 Michael Drogalis
 
 Distributed under the Eclipse Public License, the same as Clojure.
+
