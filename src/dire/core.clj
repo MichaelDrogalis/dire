@@ -37,10 +37,11 @@
   (alter-meta! task-var assoc :postconditions
                (assoc (:postconditions (meta task-var) {}) description pred-fn)))
 
-(defn with-pre-hook [task-var f]
+(defn with-pre-hook
   "After task-var is invoked, preconditions are evaluated. If all preconditions
    return true, f is invoked. You can register any number of pre-hooks. They are
    not guaranteed to run in any specific order. Pre-hooks are useful for logging."
+  [task-var f]
   (alter-meta! task-var assoc :pre-hooks
                (conj (:pre-hooks (meta task-var) #{}) f)))
 

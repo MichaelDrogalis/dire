@@ -9,7 +9,8 @@
                  [midje "1.4.0"]
                  [com.stuartsierra/lazytest "1.2.3"]
                  [slingshot "0.10.3"]
-                 [robert/hooke "1.3.0"]]
+                 [robert/hooke "1.3.0"]
+                 [bultitude "0.1.7"]]
   :plugins [[lein-midje "2.0.3"]
             [codox "0.6.4"]])
 
