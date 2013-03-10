@@ -95,8 +95,8 @@
   (apply supervised-meta (meta task-var) task-var args))
 
 (defn- hook-supervisor-to-fn [task-var]
-  (def supervisor (partial supervised-meta (meta task-var)))
-  (add-hook task-var #'supervisor))
+  (def supervisor# (partial supervised-meta (meta task-var)))
+  (add-hook task-var supervisor#))
 
 (defn with-handler!
   "Same as with-handler, but task-var can be invoked without supervise. (e.g. (task-var args))"
@@ -113,14 +113,12 @@
 (defn with-precondition!
   "Same as with-precondition, but task-var can be invoked without supervise."
   [task-var description pred-fn]
-  (with-precondition task-var description pred-fn)
-  (hook-supervisor-to-fn task-var))
+  (with-precondition task-var description pred-fn))
 
 (defn with-postcondition!
   "Same as with-postcondition, but task-var can be invoked without supervise."
   [task-var description pred-fn]
-  (with-postcondition task-var description pred-fn)
-  (hook-supervisor-to-fn task-var))
+  (with-postcondition task-var description pred-fn))
 
 (defn with-pre-hook!
   "Same as with-pre-hook, but task-var can be invoked without supervise."
