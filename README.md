@@ -86,7 +86,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (inc n))
 
 (with-postcondition! #'add-one
-  ;;; Name of the precondition
+  ;;; Name of the postcondition
   :not-two
   (fn [n & args]
     (not= n 2)))
