@@ -8,9 +8,8 @@
   ([task-var docstring? exception-type handler-fn]
      (with-handler task-var exception-type handler-fn))
   ([task-var exception-type handler-fn]
-     (alter-meta! task-var assoc :error-handlers
-                  (merge (:error-handlers (meta task-var) {})
-                         {exception-type handler-fn}))))
+     (alter-meta! task-var assoc-in [:error-handlers exception-type]
+                  handler-fn)))
 
 (defn with-finally
   "Binds finally-fn as the last piece of code to execute within
@@ -26,24 +25,21 @@
    original bindings to task-var. If it returns false, description is thrown.
    task-var must be invoked via supervise."
   [task-var description pred-fn]
-  (alter-meta! task-var assoc :preconditions
-               (assoc (:preconditions (meta task-var) {}) description pred-fn)))
+  (alter-meta! task-var assoc-in [:preconditions description] pred-fn))
 
 (defn with-postcondition
   "After task-var is invoked, pred-fn is evaluated with the return value
    of task-var. If it return false, description is thrown. task-var must be
    invoked via supervise."
   [task-var description pred-fn]
-  (alter-meta! task-var assoc :postconditions
-               (assoc (:postconditions (meta task-var) {}) description pred-fn)))
+  (alter-meta! task-var assoc-in [:postconditions description] pred-fn))
 
 (defn with-pre-hook
   "After task-var is invoked, preconditions are evaluated. If all preconditions
    return true, f is invoked. You can register any number of pre-hooks. They are
    not guaranteed to run in any specific order. Pre-hooks are useful for logging."
   [task-var f]
-  (alter-meta! task-var assoc :pre-hooks
-               (conj (:pre-hooks (meta task-var) #{}) f)))
+  (alter-meta! task-var update-in [:pre-hooks] (fnil conj #{}) f))
 
 (defn- eval-preconditions
   [task-metadata & args]
