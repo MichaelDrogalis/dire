@@ -17,6 +17,10 @@ Available on Clojars:
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
+## Relevant Blog Posts
+- [try/catch complects: We can do so much better](http://michaeldrogalis.tumblr.com/post/40181639419/try-catch-complects-we-can-do-so-much-better)
+- [Beautiful Separation of Concerns](http://michaeldrogalis.tumblr.com/post/46560874730/beautiful-separation-of-concerns)
+
 ## Usage: Drop-in Flavor
 
 ### Simple Example
