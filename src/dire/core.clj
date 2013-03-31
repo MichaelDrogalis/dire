@@ -63,6 +63,24 @@
 (defn- default-error-handler [exception & _]
   (throw exception))
 
+(defmulti apply-handler (fn [type & _] type))
+
+(defmethod apply-handler :precondition [type task-meta conditions args]
+  (if-let [pre-handler (get (:error-handlers task-meta)
+                            {:precondition (:precondition conditions)})]
+       (apply pre-handler conditions args)
+       (throw+ conditions)))
+
+(defmethod apply-handler :postcondition [type task-meta conditions args]
+  (if-let [post-handler (get (:error-handlers task-meta)
+                             {:postcondition (:postcondition conditions)})]
+       (post-handler conditions (:result conditions))
+       (throw+ conditions)))
+
+(defmethod apply-handler :default [task-meta e args]
+  (let [handler (get (:error-handlers task-meta) (type e) default-error-handler)]
+       (apply handler e args)))
+
 (defn- supervised-meta [task-meta task-var & args]
   (try+
    (apply eval-preconditions task-meta args)
@@ -71,18 +89,13 @@
      (apply eval-postconditions task-meta result args)
      result)
    (catch [:type :dire.core/precondition] {:as conditions}
-     (if-let [pre-handler (get (:error-handlers task-meta) {:precondition (:precondition conditions)})]
-       (apply pre-handler conditions args)
-       (throw+ conditions)))
+     (apply-handler :precondition task-meta conditions args))
    (catch [:type :dire.core/postcondition] {:as conditions}
-     (if-let [post-handler (get (:error-handlers task-meta) {:postcondition (:postcondition conditions)})]
-       (post-handler conditions (:result conditions))
-       (throw+ conditions)))
+     (apply-handler :postcondition task-meta conditions args))
    (catch Exception e
-     (let [handler (get (:error-handlers task-meta) (type e) default-error-handler)]
-       (apply handler e args)))
+     (apply-handler task-meta e args))
    (finally
-    (apply eval-finally task-meta args))))
+     (apply eval-finally task-meta args))))
 
 (defn supervise
   "Invokes task-var with args as the parameters. If any exceptions are raised,
