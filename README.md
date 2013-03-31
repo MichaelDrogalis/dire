@@ -228,6 +228,11 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - Multiple pre-hooks evaluate in *arbitrary* order.
 - There's no `with-post-hook`. You have `with-finally` for that.
 
+# Contributors
+- [edlich](https://github.com/edlich)
+- [bostonou](https://github.com/bostonou)
+- [oneness](https://github.com/oneness)
+
 ## License
 
 Copyright © 2012 Michael Drogalis
