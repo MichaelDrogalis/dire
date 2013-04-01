@@ -11,11 +11,15 @@ Ships with two flavors:
 
 Available on Clojars:
 
-    [dire "0.3.0"]
+    [dire "0.4.0"]
 
 ## API
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
+
+## Relevant Blog Posts
+- [try/catch complects: We can do so much better](http://michaeldrogalis.tumblr.com/post/40181639419/try-catch-complects-we-can-do-so-much-better)
+- [Beautiful Separation of Concerns](http://michaeldrogalis.tumblr.com/post/46560874730/beautiful-separation-of-concerns)
 
 ## Usage: Drop-in Flavor
 
@@ -65,7 +69,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (inc n))
 
 (with-precondition! #'add-one
-  ;;; Name of the with-precondition
+  ;;; Name of the precondition
   :not-two
   (fn [n & args]
     (not= n 2)))
@@ -86,7 +90,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (inc n))
 
 (with-postcondition! #'add-one
-  ;;; Name of the with-precondition
+  ;;; Name of the postcondition
   :not-two
   (fn [n & args]
     (not= n 2)))
@@ -223,6 +227,11 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 - Multiple pre-hooks evaluate in *arbitrary* order.
 - There's no `with-post-hook`. You have `with-finally` for that.
+
+# Contributors
+- [edlich](https://github.com/edlich)
+- [bostonou](https://github.com/bostonou)
+- [oneness](https://github.com/oneness)
 
 ## License
 
