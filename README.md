@@ -229,9 +229,9 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - There's no `with-post-hook`. You have `with-finally` for that.
 
 # Contributors
-- [edlich](https://github.com/edlich)
-- [bostonou](https://github.com/bostonou)
-- [oneness](https://github.com/oneness)
+- [Stefan Edlich](https://github.com/edlich)
+- [Jonathan Boston](https://github.com/bostonou)
+- [Kasim Tuman](https://github.com/oneness)
 
 ## License
 
