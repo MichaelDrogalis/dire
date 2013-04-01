@@ -11,7 +11,7 @@ Ships with two flavors:
 
 Available on Clojars:
 
-    [dire "0.4.0"]
+    [dire "0.4.1"]
 
 ## API
 
