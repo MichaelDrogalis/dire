@@ -41,6 +41,12 @@
   [task-var f]
   (alter-meta! task-var update-in [:pre-hooks] (fnil conj #{}) f))
 
+(defn with-dispatcher
+  "Dispatches exceptions to handler functions based on dispatcher-fn.
+   dispatcher-fn takes a single argument, which is the value being thrown."
+  [task-var dispatcher-fn]
+  (alter-meta! task-var assoc :dispatcher dispatcher-fn))
+
 (defn- eval-preconditions
   [task-metadata & args]
   (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
@@ -78,8 +84,9 @@
        (throw+ conditions)))
 
 (defmethod apply-handler :default [task-meta e args]
-  (let [handler (get (:error-handlers task-meta) (type e) default-error-handler)]
-       (apply handler e args)))
+  (let [dispatcher-fn (or (:dispatcher task-meta) type)
+        handler (get (:error-handlers task-meta) (dispatcher-fn e) default-error-handler)]
+    (apply handler e args)))
 
 (defn- supervised-meta [task-meta task-var & args]
   (try+
@@ -92,7 +99,7 @@
      (apply-handler :precondition task-meta conditions args))
    (catch [:type :dire.core/postcondition] {:as conditions}
      (apply-handler :postcondition task-meta conditions args))
-   (catch Exception e
+   (catch Object e
      (apply-handler task-meta e args))
    (finally
      (apply eval-finally task-meta args))))
@@ -135,5 +142,11 @@
   "Same as with-pre-hook, but task-var can be invoked without supervise."
   [task-var f]
   (with-pre-hook task-var f)
+  (hook-supervisor-to-fn task-var))
+
+(defn with-dispatcher!
+  "Same as with-dispatcher, but task-var can be invoked without supervise."
+  [task-var dispatcher-fn]
+  (with-dispatcher task-var dispatcher-fn)
   (hook-supervisor-to-fn task-var))
 
