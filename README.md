@@ -11,7 +11,7 @@ Ships with two flavors:
 
 Available on Clojars:
 
-    [dire "0.4.1"]
+    [dire "0.4.2"]
 
 ## API
 
@@ -20,6 +20,15 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ## Relevant Blog Posts
 - [try/catch complects: We can do so much better](http://michaeldrogalis.tumblr.com/post/40181639419/try-catch-complects-we-can-do-so-much-better)
 - [Beautiful Separation of Concerns](http://michaeldrogalis.tumblr.com/post/46560874730/beautiful-separation-of-concerns)
+
+## Evaluation Order
+1. Eager Prehooks
+2. Preconditions
+3. Prehooks
+4. The target function
+5. Exception handlers
+6. Postconditions
+7. Finally clause
 
 ## Usage: Drop-in Flavor
 
@@ -34,6 +43,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
 (with-handler! #'divider
+  "Here's an optional docstring about the handler."
   java.lang.ArithmeticException
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))
@@ -55,6 +65,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (fn [e & args] (println "Catching the exception.")))
 
 (with-finally! #'divider
+  "An optional docstring about the finally function."
   (fn [& args] (println "Executing a finally clause.")))
 
 (divider 10 0) ; => "Catching the exception.\nExecuting a finally clause.\n"
@@ -69,6 +80,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (inc n))
 
 (with-precondition! #'add-one
+  "An optional docstring."
   ;;; Name of the precondition
   :not-two
   (fn [n & args]
@@ -90,6 +102,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (inc n))
 
 (with-postcondition! #'add-one
+  "An optional docstring."
   ;;; Name of the postcondition
   :not-two
   (fn [n & args]
@@ -111,9 +124,25 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (* a b))
 
 (with-pre-hook! #'times
+  "An optional docstring."
   (fn [a b] (println "Logging something interesting.")))
 
 (times 21 2) ; => "Logging something interesting."
+```
+
+### Eager Pre-hooks
+```clojure
+(ns mydire.prehook
+  (:require [dire.core :refer [with-eager-pre-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-eager-pre-hook! #'times
+  "An optional docstring."
+  (fn [a b] (println "Logging something before preconditions are evaluated.")))
+
+(times 21 2) ; => "Logging something before preconditions are evaluated."
 ```
 
 ## Usage: Erlang Style with supervise
@@ -221,6 +250,18 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (fn [a b] (println "Logging something interesting."))
 
 (supervise #'times 1 2) ; => "Logging something interesting.", 2
+```
+
+### Eager Pre-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-eager-pre-hook #'times
+  "An optional docstring."
+  (fn [a b] (println "Logging something before preconditions are evaluated.")))
+
+(supervise #'times 21 2) ; => "Logging something before preconditions are evaluated."
 ```
 
 ## Etc
