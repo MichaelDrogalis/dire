@@ -129,37 +129,49 @@
 
 (defn with-handler!
   "Same as with-handler, but task-var can be invoked without supervise. (e.g. (task-var args))"
-  [task-var exception-type handler-fn]
-  (with-handler task-var exception-type handler-fn)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? exception-type handler-fn]
+     (with-handler! task-var exception-type handler-fn))
+  ([task-var exception-type handler-fn]
+     (with-handler task-var exception-type handler-fn)
+     (hook-supervisor-to-fn task-var)))
 
 (defn with-finally!
   "Same as with-finally, but task-var can be invoked without supervise."
-  [task-var finally-fn]
-  (with-finally task-var finally-fn)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? finally-fn]
+     (with-finally! task-var finally-fn))
+  ([task-var finally-fn]
+     (with-finally task-var finally-fn)
+     (hook-supervisor-to-fn task-var)))
 
 (defn with-precondition!
   "Same as with-precondition, but task-var can be invoked without supervise."
-  [task-var description pred-fn]
-  (with-precondition task-var description pred-fn)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? description pred-fn]
+     (with-precondition! task-var description pred-fn))
+  ([task-var description pred-fn]
+     (with-precondition task-var description pred-fn)
+     (hook-supervisor-to-fn task-var)))
 
 (defn with-postcondition!
   "Same as with-postcondition, but task-var can be invoked without supervise."
-  [task-var description pred-fn]
-  (with-postcondition task-var description pred-fn)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? description pred-fn]
+     (with-postcondition! task-var description pred-fn))
+  ([task-var description pred-fn]
+     (with-postcondition task-var description pred-fn)
+     (hook-supervisor-to-fn task-var)))
 
 (defn with-pre-hook!
   "Same as with-pre-hook, but task-var can be invoked without supervise."
-  [task-var f]
-  (with-pre-hook task-var f)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? f]
+     (with-pre-hook! task-var f))
+  ([task-var f]
+     (with-pre-hook task-var f)
+     (hook-supervisor-to-fn task-var)))
 
 (defn with-eager-pre-hook!
   "Same as with-eager-pre-hook, but task-var can be invoked without supervise."
-  [task-var f]
-  (with-eager-pre-hook task-var f)
-  (hook-supervisor-to-fn task-var))
+  ([task-var docstring? f]
+     (with-eager-pre-hook! task-var f))
+  ([task-var f]
+     (with-eager-pre-hook task-var f)
+     (hook-supervisor-to-fn task-var)))
 
