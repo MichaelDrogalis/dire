@@ -74,3 +74,24 @@
 (with-out-str (fact (supervise #'loggable-multiplier 1 2) => 2))
 (fact (with-out-str (supervise #'loggable-multiplier 1 2)) => "Logging 1 and 2\n")
 
+(defn eager-fn [x]
+  (println "Body"))
+
+(with-precondition #'eager-fn
+  :x-not-0
+  (fn [x] (not= x 0)))
+
+(with-handler #'eager-fn
+  {:precondition :x-not-0}
+  (fn [e x] (println "Handler")))
+
+(with-eager-pre-hook #'eager-fn
+  "Logs something unconditionally."
+  (fn [x] (println "Eager prehook")))
+
+(with-pre-hook #'eager-fn
+  "Logs only after preconditions succeed."
+  (fn [x] (println "Normal prehook")))
+
+(fact (with-out-str (supervise #'eager-fn 0)) => "Eager prehook\nHandler\n")
+
