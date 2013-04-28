@@ -38,13 +38,23 @@
      (alter-meta! task-var assoc-in [:postconditions description] pred-fn)))
 
 (defn with-pre-hook
-  "After task-var is invoked, preconditions are evaluated. If all preconditions
-   return true, f is invoked. You can register any number of pre-hooks. They are
-   not guaranteed to run in any specific order. Pre-hooks are useful for logging."
+  "After task-var is invoked, eager prehooks and preconditions are evaluated.
+   If all preconditions return true, f is invoked. You can register any number of
+   pre-hooks. They are not guaranteed to run in any specific order. Pre-hooks are
+   useful for logging."
   ([task-var docstring? f]
      (with-pre-hook task-var f))
   ([task-var f]
      (alter-meta! task-var update-in [:pre-hooks] (fnil conj #{}) f)))
+
+(defn with-eager-pre-hook
+  "After task-var is invoked, eager prehooks evaluated before preconditions,
+   followed by prehooks. You can register any number of eager prehooks.
+   They are not guaranteed to run in any specific order."
+  ([task-var docstring? f]
+     (with-eager-pre-hook task-var f))
+  ([task-var f]
+     (alter-meta! task-var update-in [:eager-pre-hooks] (fnil conj #{}) f)))
 
 (defn- eval-preconditions
   [task-metadata & args]
@@ -56,6 +66,10 @@
   (doseq [[post-name post-fn] (:postconditions task-metadata)]
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
+
+(defn- eval-eager-pre-hooks [task-metadata & args]
+  (doseq [f (:eager-pre-hooks task-metadata)]
+    (apply f args)))
 
 (defn- eval-pre-hooks [task-metadata & args]
   (doseq [f (:pre-hooks task-metadata)]
@@ -88,6 +102,7 @@
 
 (defn- supervised-meta [task-meta task-var & args]
   (try+
+   (apply eval-eager-pre-hooks task-meta args)
    (apply eval-preconditions task-meta args)
    (apply eval-pre-hooks task-meta args)
    (let [result (apply task-var args)]
@@ -140,5 +155,11 @@
   "Same as with-pre-hook, but task-var can be invoked without supervise."
   [task-var f]
   (with-pre-hook task-var f)
+  (hook-supervisor-to-fn task-var))
+
+(defn with-eager-pre-hook!
+  "Same as with-eager-pre-hook, but task-var can be invoked without supervise."
+  [task-var f]
+  (with-eager-pre-hook task-var f)
   (hook-supervisor-to-fn task-var))
 
