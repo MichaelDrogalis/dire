@@ -34,11 +34,13 @@
   (inc n))
 
 (with-precondition #'add-one
-   :not-two
+  "Adds one to the argument."
+  :not-two
   (fn [n & args]
     (not= n 2)))
 
 (with-handler #'add-one
+  "Handles precondition failures."
   {:precondition :not-two}
   (fn [e & args] (:precondition e)))
 
@@ -49,6 +51,7 @@
   (dec n))
 
 (with-postcondition #'subtract-one
+  "Subtracts one from the argument."
   :not-two
   (fn [n & args]
     (not= n 2)))
@@ -64,6 +67,7 @@
   (* a b))
 
 (with-pre-hook #'loggable-multiplier
+  "Logs a statement before executing a function body."
   (fn [a b]
     (println "Logging" a "and" b)))
 
