@@ -150,20 +150,20 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ### Simple Example
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [with-handler supervise]]))
+  (:require [dire.core :refer [with-handler! supervise]]))
 
 ;;; Define a task to run. It's just a function.
 (defn divider [a b]
   (/ a b))
 
 ;;; For a task, specify an exception that can be raised and a function to deal with it.
-(with-handler #'divider
+(with-handler! #'divider
   "An optional docstring."
   java.lang.ArithmeticException
   ;;; 'e' is the exception object, 'args' are the original arguments to the task.
   (fn [e & args] (println "Cannot divide by 0.")))
 
-(with-handler #'divider
+(with-handler! #'divider
   java.lang.NullPointerException
   (fn [e & args] (println "Ah! A Null Pointer Exception! Do something here!")))
 
@@ -175,13 +175,13 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ### Self-Correcting Error Handling
 ```clojure
 (ns mytask
-  (:require [dire.core :refer [with-handler supervise]]
+  (:require [dire.core :refer [with-handler! supervise]]
             [fs.core :refer [touch]]))
 
 (defn read-file [file-name]
   (slurp file-name))
 
-(with-handler #'read-file
+(with-handler! #'read-file
   java.io.FileNotFoundException
   (fn [exception file-name & _]
     (touch file-name)
@@ -195,11 +195,11 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (defn add-one [n]
   (inc n))
 
-(with-handler #'add-one
+(with-handler! #'add-one
   java.lang.NullPointerException
   (fn [e & args] (println "Catching the exception.")))
 
-(with-finally #'add-one
+(with-finally! #'add-one
   (fn [& args] (println "Executing a finally clause.")))
 
 (with-out-str (supervise #'add-one nil)) ; => "Catching the exception.\nExecuting a finally clause.\n"
@@ -210,13 +210,13 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (defn add-one [n]
   (inc n))
 
-(with-precondition #'add-one
+(with-precondition! #'add-one
   ;;; Name of the precondition
   :not-two
   (fn [n & args]
     (not= n 2)))
 
-(with-handler #'add-one
+(with-handler! #'add-one
   ;;; Pair of exception-type (:precondition) to the actual precondition (:not-two)
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
@@ -229,12 +229,12 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (defn add-one [n]
   (inc n))
 
-(with-postcondition #'add-one
+(with-postcondition! #'add-one
   :not-two
   (fn [n & args]
     (not= n 2)))
 
-(with-handler #'add-one
+(with-handler! #'add-one
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
 
@@ -246,7 +246,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (defn times [a b]
   (* a b))
 
-(with-pre-hook #'times
+(with-pre-hook! #'times
   (fn [a b] (println "Logging something interesting."))
 
 (supervise #'times 1 2) ; => "Logging something interesting.", 2
@@ -257,7 +257,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (defn times [a b]
   (* a b))
 
-(with-eager-pre-hook #'times
+(with-eager-pre-hook! #'times
   "An optional docstring."
   (fn [a b] (println "Logging something before preconditions are evaluated.")))
 
@@ -267,7 +267,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 ## Etc
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 - Multiple pre-hooks evaluate in *arbitrary* order.
-- There's no `with-post-hook`. You have `with-finally` for that.
+- There's no `with-post-hook!`. You have `with-finally!` for that.
 
 # Contributors
 - [Stefan Edlich](https://github.com/edlich)
