@@ -13,6 +13,5 @@
                                   [org.clojure/tools.nrepl "0.2.0-RC1"]]}}
   :plugins [[lein-midje "2.0.3"]
             [codox "0.6.4"]]
-  :aliases {"midje-test" ["with-profile" "dev"
-                          "midje"]})
+  :aliases {"midje-test" ["with-profile" "dev" "midje"]})
 
