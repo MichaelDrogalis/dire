@@ -56,6 +56,16 @@
   ([task-var f]
      (alter-meta! task-var update-in [:eager-pre-hooks] (fnil conj #{}) f)))
 
+(defn with-post-hook
+  "After task-var is invoked and postconditions run, and before finally
+   is invoked, post-hooks will run. You can register any number of post-hooks,
+   and they are not guaranteed to run in any specific order. Useful for logging
+   the result of the return value of a function."
+  ([task-var docstring? f]
+     (with-post-hook task-var f))
+  ([task-var f]
+     (alter-meta! task-var update-in [:post-hooks] (fnil conj #{}) f)))
+
 (defn- eval-preconditions
   [task-metadata & args]
   (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
@@ -74,6 +84,10 @@
 (defn- eval-pre-hooks [task-metadata & args]
   (doseq [f (:pre-hooks task-metadata)]
     (apply f args)))
+
+(defn- eval-post-hooks [task-metadata result]
+  (doseq [f (:post-hooks task-metadata)]
+    (f result)))
 
 (defn- eval-finally [task-metadata & args]
   (when-let [finally-fn (:finally task-metadata)]
@@ -107,6 +121,7 @@
    (apply eval-pre-hooks task-meta args)
    (let [result (apply task-var args)]
      (apply eval-postconditions task-meta result args)
+     (eval-post-hooks task-meta result)
      result)
    (catch [:type :dire.core/precondition] {:as conditions}
      (apply-handler :precondition task-meta conditions args))
@@ -173,5 +188,13 @@
      (with-eager-pre-hook! task-var f))
   ([task-var f]
      (with-eager-pre-hook task-var f)
+     (hook-supervisor-to-fn task-var)))
+
+(defn with-post-hook!
+  "Same as with-post-hook, but task-var can be invoked without supervise."
+  ([task-var docstring? f]
+     (with-post-hook! task-var f))
+  ([task-var f]
+     (with-post-hook task-var f)
      (hook-supervisor-to-fn task-var)))
 
