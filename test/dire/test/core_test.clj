@@ -34,11 +34,13 @@
   (inc n))
 
 (with-precondition #'add-one
-   :not-two
+  "Adds one to the argument."
+  :not-two
   (fn [n & args]
     (not= n 2)))
 
 (with-handler #'add-one
+  "Handles precondition failures."
   {:precondition :not-two}
   (fn [e & args] (:precondition e)))
 
@@ -49,6 +51,7 @@
   (dec n))
 
 (with-postcondition #'subtract-one
+  "Subtracts one from the argument."
   :not-two
   (fn [n & args]
     (not= n 2)))
@@ -64,9 +67,39 @@
   (* a b))
 
 (with-pre-hook #'loggable-multiplier
+  "Logs a statement before executing a function body."
   (fn [a b]
     (println "Logging" a "and" b)))
 
 (with-out-str (fact (supervise #'loggable-multiplier 1 2) => 2))
 (fact (with-out-str (supervise #'loggable-multiplier 1 2)) => "Logging 1 and 2\n")
+
+(defn eager-fn [x]
+  (println "Body"))
+
+(with-precondition #'eager-fn
+  :x-not-0
+  (fn [x] (not= x 0)))
+
+(with-handler #'eager-fn
+  {:precondition :x-not-0}
+  (fn [e x] (println "Handler")))
+
+(with-eager-pre-hook #'eager-fn
+  "Logs something unconditionally."
+  (fn [x] (println "Eager prehook")))
+
+(with-pre-hook #'eager-fn
+  "Logs only after preconditions succeed."
+  (fn [x] (println "Normal prehook")))
+
+(fact (with-out-str (supervise #'eager-fn 0)) => "Eager prehook\nHandler\n")
+
+(defn add-two [x]
+  (+ x 2))
+
+(with-post-hook #'add-two
+  (fn [result] (println "Result was" result)))
+
+(fact (with-out-str (supervise #'add-two 0)) => "Result was 2\n")
 

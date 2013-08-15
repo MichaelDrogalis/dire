@@ -1,18 +1,167 @@
 # dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
-Decomplect error logic. Erlang-style supervisor error handling for Clojure. Inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf).
+Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
+
+Ships with two flavors:
+
+1. The drop-in style, using functions ending in '!'
+2. Erlang-style inspired by the work of [Joe Armstrong](http://www.erlang.org/download/armstrong_thesis_2003.pdf) using a supervisor
 
 ## Installation
 
 Available on Clojars:
 
-    [dire "0.2.0"]
+    [dire "0.4.4"]
 
 ## API
 
 Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 
-## Usage
+## Relevant Blog Posts
+- [try/catch complects: We can do so much better](http://michaeldrogalis.tumblr.com/post/40181639419/try-catch-complects-we-can-do-so-much-better)
+- [Beautiful Separation of Concerns](http://michaeldrogalis.tumblr.com/post/46560874730/beautiful-separation-of-concerns)
+
+## Evaluation Order
+1. Eager Pre-hooks
+2. Preconditions
+3. Pre-hooks
+4. The target function
+5. Exception handlers
+6. Postconditions
+7. Post-hooks
+8. Finally clause
+
+## Usage: Drop-in Flavor
+
+### Simple Example
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-handler!]]))
+
+;;; Define a task to run. It's just a function.
+(defn divider [a b]
+  (/ a b))
+
+;;; For a task, specify an exception that can be raised and a function to deal with it.
+(with-handler! #'divider
+  "Here's an optional docstring about the handler."
+  java.lang.ArithmeticException
+  ;;; 'e' is the exception object, 'args' are the original arguments to the task.
+  (fn [e & args] (println "Cannot divide by 0.")))
+
+(divider 10 0) ; => "Cannot divide by 0."
+```
+
+### Try/Catch/Finally Semantics
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-handler! with-finally!]]))
+
+;;; Define a task to run. It's just a function.
+(defn divider [a b]
+  (/ a b))
+
+(with-handler! #'divider
+  java.lang.ArithmeticException
+  (fn [e & args] (println "Catching the exception.")))
+
+(with-finally! #'divider
+  "An optional docstring about the finally function."
+  (fn [& args] (println "Executing a finally clause.")))
+
+(divider 10 0) ; => "Catching the exception.\nExecuting a finally clause.\n"
+```
+
+### Preconditions
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-precondition! with-handler!]]))
+
+(defn add-one [n]
+  (inc n))
+
+(with-precondition! #'add-one
+  "An optional docstring."
+  ;;; Name of the precondition
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+    
+(with-handler! #'add-one
+  {:precondition :not-two}
+  (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
+
+(add-one 2) ; => "Precondition failure for argument list: (2)"
+```
+
+### Postconditions
+```clojure
+(ns mytask
+  (:require [dire.core :refer [with-postcondition! with-handler!]]))
+
+(defn add-one [n]
+  (inc n))
+
+(with-postcondition! #'add-one
+  "An optional docstring."
+  ;;; Name of the postcondition
+  :not-two
+  (fn [n & args]
+    (not= n 2)))
+    
+(with-handler! #'add-one
+  {:postcondition :not-two}
+  (fn [e result] (str "Postcondition failed for result: " result)))
+
+(add-one 1) ; => "Precondition failure for reault: (2)"
+```
+
+### Pre-hooks
+```clojure
+(ns mydire.prehook
+  (:require [dire.core :refer [with-pre-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-pre-hook! #'times
+  "An optional docstring."
+  (fn [a b] (println "Logging something interesting.")))
+
+(times 21 2) ; => "Logging something interesting."
+```
+
+### Eager Pre-hooks
+```clojure
+(ns mydire.prehook
+  (:require [dire.core :refer [with-eager-pre-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-eager-pre-hook! #'times
+  "An optional docstring."
+  (fn [a b] (println "Logging something before preconditions are evaluated.")))
+
+(times 21 2) ; => "Logging something before preconditions are evaluated."
+```
+
+### Post-hooks
+```clojure
+(ns mydire.posthook
+  (:require [dire.core :refer [with-post-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-post-hook! #'times
+  "An optional docstring."
+  (fn [result] (println "Result was" result)))
+
+(times 21 2) ; => "Result was 42"
+```
+
+## Usage: Erlang Style with supervise
 
 ### Simple Example
 ```clojure
@@ -108,24 +257,49 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'add-one 1) ; => "Postcondition failed for result: 2"
 ```
 
-### Look Ma! No Supervisor!
+### Pre-hooks
 ```clojure
-(defn multiply [a b]
+(defn times [a b]
   (* a b))
 
-;;; Note the '!'
-(with-handler! #'multiply
-  java.lang.NullPointerException
-  (fn [e a b]
-    :npe))
+(with-pre-hook #'times
+  (fn [a b] (println "Logging something interesting."))
 
-;;; Note, no call to 'supervise'. Just use the function
-(multiply 1 nil) ; => :npe
+(supervise #'times 1 2) ; => "Logging something interesting.", 2
 ```
 
-### Etc
-- `with-finally`, `with-precondition`, and `with-postcondition` all have similar bang variants as above.
+### Eager Pre-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-eager-pre-hook #'times
+  "An optional docstring."
+  (fn [a b] (println "Logging something before preconditions are evaluated.")))
+
+(supervise #'times 21 2) ; => "Logging something before preconditions are evaluated."
+```
+
+### Post-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-post-hook #'times
+  "An optional docstring."
+  (fn [result] (println "Result was" result)))
+
+(supervise #'times 21 2) ; => "Result was 42"
+```
+
+## Etc
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
+- Multiple pre-hooks evaluate in *arbitrary* order.
+
+# Contributors
+- [Stefan Edlich](https://github.com/edlich)
+- [Jonathan Boston](https://github.com/bostonou)
+- [Kasim Tuman](https://github.com/oneness)
 
 ## License
 
