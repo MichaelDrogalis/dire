@@ -95,3 +95,11 @@
 
 (fact (with-out-str (supervise #'eager-fn 0)) => "Eager prehook\nHandler\n")
 
+(defn add-two [x]
+  (+ x 2))
+
+(with-post-hook #'add-two
+  (fn [result] (println "Result was" result)))
+
+(fact (with-out-str (supervise #'add-two 0)) => "Result was 2\n")
+

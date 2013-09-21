@@ -11,7 +11,7 @@ Ships with two flavors:
 
 Available on Clojars:
 
-    [dire "0.4.3"]
+    [dire "0.4.4"]
 
 ## API
 
@@ -22,13 +22,14 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - [Beautiful Separation of Concerns](http://michaeldrogalis.tumblr.com/post/46560874730/beautiful-separation-of-concerns)
 
 ## Evaluation Order
-1. Eager Prehooks
+1. Eager Pre-hooks
 2. Preconditions
-3. Prehooks
+3. Pre-hooks
 4. The target function
 5. Exception handlers
 6. Postconditions
-7. Finally clause
+7. Post-hooks
+8. Finally clause
 
 ## Usage: Drop-in Flavor
 
@@ -143,6 +144,21 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (fn [a b] (println "Logging something before preconditions are evaluated.")))
 
 (times 21 2) ; => "Logging something before preconditions are evaluated."
+```
+
+### Post-hooks
+```clojure
+(ns mydire.posthook
+  (:require [dire.core :refer [with-post-hook!]]))
+
+(defn times [a b]
+  (* a b))
+
+(with-post-hook! #'times
+  "An optional docstring."
+  (fn [result] (println "Result was" result)))
+
+(times 21 2) ; => "Result was 42"
 ```
 
 ## Usage: Erlang Style with supervise
@@ -264,10 +280,21 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (supervise #'times 21 2) ; => "Logging something before preconditions are evaluated."
 ```
 
+### Post-hooks
+```clojure
+(defn times [a b]
+  (* a b))
+
+(with-post-hook #'times
+  "An optional docstring."
+  (fn [result] (println "Result was" result)))
+
+(supervise #'times 21 2) ; => "Result was 42"
+```
+
 ## Etc
 - If an exception is raised that has no handler, it will be raised up the stack like normal.
 - Multiple pre-hooks evaluate in *arbitrary* order.
-- There's no `with-post-hook`. You have `with-finally` for that.
 
 # Contributors
 - [Stefan Edlich](https://github.com/edlich)
