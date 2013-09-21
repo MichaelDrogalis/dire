@@ -1,4 +1,4 @@
-(defproject dire "0.4.4"
+(defproject dire "0.4.5-SNAPSHOT"
   :description "Erlang-style supervisor error handling for Clojure"
   :url "https://github.com/MichaelDrogalis/dire"
   :license {:name "Eclipse Public License"
