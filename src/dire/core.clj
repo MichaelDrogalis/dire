@@ -8,7 +8,7 @@
   ([task-var docstring? exception-type handler-fn]
      (with-handler task-var exception-type handler-fn))
   ([task-var exception-type handler-fn]
-     (alter-meta! task-var assoc-in [:error-handlers exception-type] handler-fn)))
+     (alter-meta! task-var assoc-in [:dire/error-handlers exception-type] handler-fn)))
 
 (defn with-finally
   "Binds finally-fn as the last piece of code to execute within
@@ -17,7 +17,7 @@
   ([task-var docstring? finally-fn]
      (with-finally task-var finally-fn))
   ([task-var finally-fn]
-     (alter-meta! task-var assoc :finally finally-fn)))
+     (alter-meta! task-var assoc :dire/finally finally-fn)))
 
 (defn with-precondition
   "Before task-var is invoked, pred-fn is evaluated with the
@@ -26,7 +26,7 @@
   ([task-var docstring? description pred-fn]
      (with-precondition task-var description pred-fn))
   ([task-var description pred-fn]
-     (alter-meta! task-var assoc-in [:preconditions description] pred-fn)))
+     (alter-meta! task-var assoc-in [:dire/preconditions description] pred-fn)))
 
 (defn with-postcondition
   "After task-var is invoked, pred-fn is evaluated with the return value
@@ -35,7 +35,7 @@
   ([task-var docstring? description pred-fn]
      (with-postcondition task-var description pred-fn))
   ([task-var description pred-fn]
-     (alter-meta! task-var assoc-in [:postconditions description] pred-fn)))
+     (alter-meta! task-var assoc-in [:dire/postconditions description] pred-fn)))
 
 (defn with-pre-hook
   "After task-var is invoked, eager prehooks and preconditions are evaluated.
@@ -45,7 +45,7 @@
   ([task-var docstring? f]
      (with-pre-hook task-var f))
   ([task-var f]
-     (alter-meta! task-var update-in [:pre-hooks] (fnil conj #{}) f)))
+     (alter-meta! task-var update-in [:dire/pre-hooks] (fnil conj #{}) f)))
 
 (defn with-eager-pre-hook
   "After task-var is invoked, eager prehooks evaluated before preconditions,
@@ -54,7 +54,7 @@
   ([task-var docstring? f]
      (with-eager-pre-hook task-var f))
   ([task-var f]
-     (alter-meta! task-var update-in [:eager-pre-hooks] (fnil conj #{}) f)))
+     (alter-meta! task-var update-in [:dire/eager-pre-hooks] (fnil conj #{}) f)))
 
 (defn with-post-hook
   "After task-var is invoked and postconditions run, and before finally
@@ -64,33 +64,33 @@
   ([task-var docstring? f]
      (with-post-hook task-var f))
   ([task-var f]
-     (alter-meta! task-var update-in [:post-hooks] (fnil conj #{}) f)))
+     (alter-meta! task-var update-in [:dire/post-hooks] (fnil conj #{}) f)))
 
 (defn- eval-preconditions
   [task-metadata & args]
-  (doseq [[pre-name pre-fn] (:preconditions task-metadata)]
+  (doseq [[pre-name pre-fn] (:dire/preconditions task-metadata)]
     (when-not (apply pre-fn args)
       (throw+ {:type ::precondition :precondition pre-name}))))
 
 (defn- eval-postconditions [task-metadata result & args]
-  (doseq [[post-name post-fn] (:postconditions task-metadata)]
+  (doseq [[post-name post-fn] (:dire/postconditions task-metadata)]
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
 
 (defn- eval-eager-pre-hooks [task-metadata & args]
-  (doseq [f (:eager-pre-hooks task-metadata)]
+  (doseq [f (:dire/eager-pre-hooks task-metadata)]
     (apply f args)))
 
 (defn- eval-pre-hooks [task-metadata & args]
-  (doseq [f (:pre-hooks task-metadata)]
+  (doseq [f (:dire/pre-hooks task-metadata)]
     (apply f args)))
 
 (defn- eval-post-hooks [task-metadata result]
-  (doseq [f (:post-hooks task-metadata)]
+  (doseq [f (:dire/post-hooks task-metadata)]
     (f result)))
 
 (defn- eval-finally [task-metadata & args]
-  (when-let [finally-fn (:finally task-metadata)]
+  (when-let [finally-fn (:dire/finally task-metadata)]
     (apply finally-fn args)))
 
 (defn- default-error-handler [exception & _]
@@ -99,19 +99,19 @@
 (defmulti apply-handler (fn [type & _] type))
 
 (defmethod apply-handler :precondition [type task-meta conditions args]
-  (if-let [pre-handler (get (:error-handlers task-meta)
+  (if-let [pre-handler (get (:dire/error-handlers task-meta)
                             {:precondition (:precondition conditions)})]
     (apply pre-handler conditions args)
     (throw+ conditions)))
 
 (defmethod apply-handler :postcondition [type task-meta conditions args]
-  (if-let [post-handler (get (:error-handlers task-meta)
+  (if-let [post-handler (get (:dire/error-handlers task-meta)
                              {:postcondition (:postcondition conditions)})]
     (post-handler conditions (:result conditions))
     (throw+ conditions)))
 
 (defmethod apply-handler :default [task-meta e args]
-  (let [handler (get (:error-handlers task-meta) (type e) default-error-handler)]
+  (let [handler (get (:dire/error-handlers task-meta) (type e) default-error-handler)]
     (apply handler e args)))
 
 (defn- supervised-meta [task-meta task-var & args]
