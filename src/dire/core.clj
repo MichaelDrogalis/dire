@@ -93,7 +93,7 @@
   (when-let [finally-fn (:dire/finally task-metadata)]
     (apply finally-fn args)))
 
-(defn selector-type [selector]
+(defn- selector-type [selector]
   (cond
    (class? selector)
    :class-name
