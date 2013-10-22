@@ -8,6 +8,7 @@
    (= arg "MAP") (throw+ {:type :custom-exception :message "MAP THROWN"})
    (= arg "EXCEPTION") (throw+ (java.lang.IllegalArgumentException. "EXCEPTION THROWN"))
    (= arg "PREDICATE") (throw+ [1 2 3])
+   (= arg "UNHANDLED EXCEPTION") (throw+ (Exception. "UNHANDLED EXCEPTION THROWN"))
    :else arg))
 
 (defn test-selector-predicate [object]
@@ -41,3 +42,6 @@
 (fact :slingshot (test-function "MAP") => "MAP THROWN")
 (fact :slingshot (test-function "EXCEPTION") => "EXCEPTION THROWN")
 (fact :slingshot (test-function "PREDICATE") => "LENGTH THREE VECTOR THROWN")
+
+(fact :slingshot (test-function "UNHANDLED EXCEPTION") =>
+      (throws Exception "UNHANDLED EXCEPTION THROWN"))
