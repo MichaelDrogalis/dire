@@ -192,9 +192,9 @@
    (catch [:type :dire.core/postcondition] {:as conditions}
      (apply-handler :postcondition task-meta conditions args))
    (catch (generate-catch-predicate task-meta) e
-       (apply-handler task-meta e args))
+     (apply-handler task-meta e args))
    (finally
-    (apply eval-finally task-meta args))))
+     (apply eval-finally task-meta args))))
 
 (defn supervise
   "Invokes task-var with args as the parameters. If any exceptions are raised,
