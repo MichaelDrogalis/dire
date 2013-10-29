@@ -1,4 +1,4 @@
-(defproject org.clojars.dparis/dire "0.5.0"
+(defproject org.clojars.dparis/dire "0.5.0-SNAPSHOT"
   :description "Erlang-style supervisor error handling for Clojure"
   :url "https://github.com/MichaelDrogalis/dire"
   :license {:name "Eclipse Public License"

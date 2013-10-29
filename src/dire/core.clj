@@ -165,9 +165,7 @@
   [task-meta]
   (let [handlers (:dire/error-handlers task-meta)]
     (fn [object]
-      (if (match-handler-selector handlers object)
-        true
-        false))))
+      (boolean (match-handler-selector handlers object)))))
 
 (defn- supervised-meta [task-meta task-var & args]
   (try+
