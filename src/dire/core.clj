@@ -118,21 +118,12 @@
     (every? true? key-val-tests)))
 
 (defmethod selector-matches? :predicate [selector object]
-  ;; NOTE - I'm not sure about this. Slingshot doesn't even guard against
-  ;;        invalid predicate application, so I don't know what the best
-  ;;        way to handle, say, an illegal argument would be. Seems sane
-  ;;        to just return false in exceptional cases, which would indicate
-  ;;        no selector match was found.  -- DP, 21-OCT-2013
   (try
     (selector object)
-    (catch Throwable e false)))
+    (catch Throwable e
+      (throw+ {:type ::predicate-selector-exception :predicate-arg object}))))
 
 (defmethod selector-matches? :unknown-selector [selector object]
-  ;; NOTE - For now, just return false, but might want to throw something
-  ;;        here to more closely match the slingshot behavior. I think
-  ;;        slingshot raises a new exception indicating an invalid form was
-  ;;        passed to the catch clause within the try+ call.
-  ;;        -- DP, 21-OCT-2013
   false)
 
 (defn- match-handler-selector [handlers object]
