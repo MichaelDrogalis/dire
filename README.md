@@ -72,6 +72,38 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (divider 10 0) ; => "Catching the exception.\nExecuting a finally clause.\n"
 ```
 
+### Slingshot Integration
+
+#### Map Dispatch
+
+```clojure
+(ns my.ns
+  (:require [dire.core :refer :all]
+            [slingshot.slingshot :refer [throw+]]))
+
+(defn f []
+  (throw+ {:type :db-disconnection :id 42}))
+
+(with-handler! #'f
+  [:type :db-disconnection]
+  (fn [e & args] "Safe and sound"))
+  
+(f) ;; => "Safe and sound"
+```
+
+#### Predicate Dispatch
+
+```clojure
+(defn f []
+  (throw+ 42))
+
+(with-handler! #'f
+  even?
+  (fn [e & args] "Caught it"))
+  
+(f) ;; => "Caught it"
+```
+
 ### Preconditions
 ```clojure
 (ns mytask
