@@ -4,11 +4,11 @@
 
 (defn with-handler
   "Binds handler-fn as the receiver of an exception of type
-   exception-type when task-var is invoked via supervise."
-  ([task-var docstring? exception-type handler-fn]
-     (with-handler task-var exception-type handler-fn))
-  ([task-var exception-type handler-fn]
-     (alter-meta! task-var assoc-in [:dire/error-handlers exception-type] handler-fn)))
+   exception-selector when task-var is invoked via supervise."
+  ([task-var docstring? exception-selector handler-fn]
+     (with-handler task-var exception-selector handler-fn))
+  ([task-var exception-selector handler-fn]
+     (alter-meta! task-var assoc-in [:dire/error-handlers exception-selector] handler-fn)))
 
 (defn with-finally
   "Binds finally-fn as the last piece of code to execute within
@@ -93,6 +93,46 @@
   (when-let [finally-fn (:dire/finally task-metadata)]
     (apply finally-fn args)))
 
+(defn- selector-type [selector]
+  (cond
+   (class? selector)
+   :class-name
+
+   (and (vector? selector)
+        (even? (count selector)))
+   :key-values
+
+   (fn? selector)
+   :predicate))
+
+(defmulti selector-matches?
+  (fn [selector _] (selector-type selector))
+  :default :unknown-selector)
+
+(defmethod selector-matches? :class-name [selector object]
+  (instance? selector object))
+
+(defmethod selector-matches? :key-values [selector object]
+  (let [key-val-tests (for [[key val] (partition 2 selector)]
+                        (= (get object key) val))]
+    (every? true? key-val-tests)))
+
+(defmethod selector-matches? :predicate [selector object]
+  (try
+    (selector object)
+    (catch Throwable e
+      (throw+ {:type ::predicate-selector-exception :predicate-arg object}))))
+
+(defmethod selector-matches? :unknown-selector [selector object]
+  false)
+
+(defn- match-handler-selector [handlers object]
+  (let [[[selector _]] (seq handlers)]
+    (cond
+     (empty? handlers) nil
+     (selector-matches? selector object) selector
+     :else (recur (rest handlers) object))))
+
 (defn- default-error-handler [exception & _]
   (throw exception))
 
@@ -110,9 +150,22 @@
     (post-handler conditions (:result conditions))
     (throw+ conditions)))
 
-(defmethod apply-handler :default [task-meta e args]
-  (let [handler (get (:dire/error-handlers task-meta) (type e) default-error-handler)]
-    (apply handler e args)))
+(defmethod apply-handler :default [task-meta thrown-object args]
+  (let [error-handlers (:dire/error-handlers task-meta)
+        handler        (get error-handlers
+                            (match-handler-selector error-handlers
+                                                    thrown-object)
+                            default-error-handler)]
+    (apply handler thrown-object args)))
+
+(defn- generate-catch-predicate
+  "Creates a predicate closure around the task context which returns a boolean
+   indicating whether the object tested matches any known error handler
+   selectors."
+  [task-meta]
+  (let [handlers (:dire/error-handlers task-meta)]
+    (fn [object]
+      (boolean (match-handler-selector handlers object)))))
 
 (defn- supervised-meta [task-meta task-var & args]
   (try+
@@ -127,10 +180,10 @@
      (apply-handler :precondition task-meta conditions args))
    (catch [:type :dire.core/postcondition] {:as conditions}
      (apply-handler :postcondition task-meta conditions args))
-   (catch Exception e
+   (catch (generate-catch-predicate task-meta) e
      (apply-handler task-meta e args))
    (finally
-    (apply eval-finally task-meta args))))
+     (apply eval-finally task-meta args))))
 
 (defn supervise
   "Invokes task-var with args as the parameters. If any exceptions are raised,
@@ -144,10 +197,10 @@
 
 (defn with-handler!
   "Same as with-handler, but task-var can be invoked without supervise. (e.g. (task-var args))"
-  ([task-var docstring? exception-type handler-fn]
-     (with-handler! task-var exception-type handler-fn))
-  ([task-var exception-type handler-fn]
-     (with-handler task-var exception-type handler-fn)
+  ([task-var docstring? exception-selector handler-fn]
+     (with-handler! task-var exception-selector handler-fn))
+  ([task-var exception-selector handler-fn]
+     (with-handler task-var exception-selector handler-fn)
      (hook-supervisor-to-fn task-var)))
 
 (defn with-finally!
@@ -197,4 +250,3 @@
   ([task-var f]
      (with-post-hook task-var f)
      (hook-supervisor-to-fn task-var)))
-
