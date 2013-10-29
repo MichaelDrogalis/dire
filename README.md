@@ -300,6 +300,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - [Stefan Edlich](https://github.com/edlich)
 - [Jonathan Boston](https://github.com/bostonou)
 - [Kasim Tuman](https://github.com/oneness)
+- [Dylan Paris](https://github.com/dparis)
 
 ## License
 
