@@ -133,8 +133,8 @@
      (selector-matches? selector object) selector
      :else (recur (rest handlers) object))))
 
-(defn- default-error-handler [exception & _]
-  (throw exception))
+(defn default-error-handler [exception & _]
+  (throw+ exception))
 
 (defmulti apply-handler (fn [type & _] type))
 
