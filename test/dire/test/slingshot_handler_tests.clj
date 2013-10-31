@@ -1,5 +1,4 @@
 (ns dire.test.slingshot-handler-tests
-  (:use [midje.util :only [testable-privates]])
   (:require [midje.sweet :refer :all]
             [dire.core :refer :all]
             [slingshot.slingshot :refer :all]))
@@ -76,8 +75,6 @@
 (fact :slingshot (test-function2 "BAD ARG") => (throws predicate-selector-exception?))
 
 ;; Make sure that the default-error-handler can propagate slingshot error maps
-(testable-privates dire.core default-error-handler)
-
 (fact :slingshot (default-error-handler {:error "error"}) => 
       (throws #(contains? (.getData %) :object)
               #(contains? (:object (.getData %)) :error)
