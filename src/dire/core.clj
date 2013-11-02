@@ -238,12 +238,12 @@
 
 (defn- hook-supervisor-to-fn [task-var]
   (def supervisor# (partial supervised-meta (meta task-var)))
-  (add-hook task-var :key supervisor#))
+  (add-hook task-var ::supervisor-hook-key supervisor#))
 
 (defn remove-supervise
   "Clears supervise hook from task-var."
   [task-var]
-  (remove-hook task-var supervisor#))
+  (remove-hook task-var ::supervisor-hook-key))
 
 (defn with-handler!
   "Same as with-handler, but task-var can be invoked without supervise. (e.g. (task-var args))"

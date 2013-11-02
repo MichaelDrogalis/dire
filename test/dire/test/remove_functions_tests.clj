@@ -46,6 +46,17 @@
     (meta #'test-fn)))
 
 
+;; Grab the internal listing of hooks from the
+;; robert.hooke library so that apply-remove-supervise
+;; can be tested
+(def robert-hooke-hooks #'robert.hooke/hooks)
+
+(defn apply-remove-supervise! []
+  (with-handler! #'test-fn [:key :val] (fn []))
+  (remove-handler #'test-fn [:key :val])
+  (remove-supervise #'test-fn)
+  (robert-hooke-hooks #'test-fn))
+
 ;; Test remove-* functions
 
 (fact :remove-fns (apply-remove-handler!) => initial-test-fn-meta)
@@ -55,3 +66,5 @@
 (fact :remove-fns (apply-remove-pre-hook!) => initial-test-fn-meta)
 (fact :remove-fns (apply-remove-eager-pre-hook!) => initial-test-fn-meta)
 (fact :remove-fns (apply-remove-post-hook!) => initial-test-fn-meta)
+
+(fact :remove-fns (apply-remove-supervise!) => nil)
