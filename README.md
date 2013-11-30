@@ -145,7 +145,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
 
-(add-one 1) ; => "Precondition failure for reault: (2)"
+(add-one 1) ; => "Postcondition failed for result: (2)"
 ```
 
 ### Pre-hooks
