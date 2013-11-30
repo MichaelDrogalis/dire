@@ -334,6 +334,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 - [Kasim Tuman](https://github.com/oneness)
 - [Dylan Paris](https://github.com/dparis)
 - [John Wregglesworth](https://github.com/johnworth)
+- [Stephon Striplin](https://github.com/arsenerei)
 
 ## License
 
