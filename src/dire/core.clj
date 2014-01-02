@@ -1,14 +1,29 @@
 (ns dire.core
-  (:require [slingshot.slingshot :refer [try+ throw+]]
-            [robert.hooke :refer [add-hook]]))
+  (:require [clojure.core.incubator :refer [dissoc-in]]
+            [robert.hooke :refer [add-hook remove-hook]]
+            [slingshot.slingshot :refer [try+ throw+]]))
+
+(defn- disj-from-set-at-key
+  "Calls disj on a set keyed by mk in m in order to remove key sk.
+   Dissoc mk from m if set is empty after disj."
+  [m mk sk]
+  (let [s (disj (get m mk) sk)]
+    (if (empty? s)
+      (dissoc m mk)
+      (assoc m mk s))))
 
 (defn with-handler
-  "Binds handler-fn as the receiver of an exception of type
+  "Binds handler-fn as the receiver of an exception which matches
    exception-selector when task-var is invoked via supervise."
   ([task-var docstring? exception-selector handler-fn]
      (with-handler task-var exception-selector handler-fn))
   ([task-var exception-selector handler-fn]
      (alter-meta! task-var assoc-in [:dire/error-handlers exception-selector] handler-fn)))
+
+(defn remove-handler
+  "Removes from task-var any handler registered with exception-selector."
+  [task-var exception-selector]
+  (alter-meta! task-var dissoc-in [:dire/error-handlers exception-selector]))
 
 (defn with-finally
   "Binds finally-fn as the last piece of code to execute within
@@ -19,6 +34,11 @@
   ([task-var finally-fn]
      (alter-meta! task-var assoc :dire/finally finally-fn)))
 
+(defn remove-finally
+  "Removes from task-var any registered finally function."
+  [task-var]
+  (alter-meta! task-var dissoc :dire/finally))
+
 (defn with-precondition
   "Before task-var is invoked, pred-fn is evaluated with the
    original bindings to task-var. If it returns false, description is thrown.
@@ -28,6 +48,11 @@
   ([task-var description pred-fn]
      (alter-meta! task-var assoc-in [:dire/preconditions description] pred-fn)))
 
+(defn remove-precondition
+  "Removes from task-var any precondition matching description."
+  [task-var description]
+  (alter-meta! task-var dissoc-in [:dire/preconditions description]))
+
 (defn with-postcondition
   "After task-var is invoked, pred-fn is evaluated with the return value
    of task-var. If it return false, description is thrown. task-var must be
@@ -36,6 +61,11 @@
      (with-postcondition task-var description pred-fn))
   ([task-var description pred-fn]
      (alter-meta! task-var assoc-in [:dire/postconditions description] pred-fn)))
+
+(defn remove-postcondition
+  "Removes from task-var any postcondition matching description."
+  [task-var description]
+  (alter-meta! task-var dissoc-in [:dire/postconditions description]))
 
 (defn with-pre-hook
   "After task-var is invoked, eager prehooks and preconditions are evaluated.
@@ -47,6 +77,11 @@
   ([task-var f]
      (alter-meta! task-var update-in [:dire/pre-hooks] (fnil conj #{}) f)))
 
+(defn remove-pre-hook
+  "Removes any registered pre-hook function f from task-var."
+  [task-var f]
+  (alter-meta! task-var disj-from-set-at-key :dire/pre-hooks f))
+
 (defn with-eager-pre-hook
   "After task-var is invoked, eager prehooks evaluated before preconditions,
    followed by prehooks. You can register any number of eager prehooks.
@@ -55,6 +90,11 @@
      (with-eager-pre-hook task-var f))
   ([task-var f]
      (alter-meta! task-var update-in [:dire/eager-pre-hooks] (fnil conj #{}) f)))
+
+(defn remove-eager-pre-hook
+  "Removes any registered eager pre-hook function f from task-var."
+  [task-var f]
+  (alter-meta! task-var disj-from-set-at-key :dire/eager-pre-hooks f))
 
 (defn with-post-hook
   "After task-var is invoked and postconditions run, and before finally
@@ -65,6 +105,11 @@
      (with-post-hook task-var f))
   ([task-var f]
      (alter-meta! task-var update-in [:dire/post-hooks] (fnil conj #{}) f)))
+
+(defn remove-post-hook
+  "Removes any registered post-hook function f from task-var."
+  [task-var f]
+  (alter-meta! task-var disj-from-set-at-key :dire/post-hooks f))
 
 (defn- eval-preconditions
   [task-metadata & args]
@@ -191,9 +236,14 @@
   [task-var & args]
   (apply supervised-meta (meta task-var) task-var args))
 
-(defn- hook-supervisor-to-fn [task-var]
+(defn hook-supervisor-to-fn [task-var]
   (def supervisor# (partial supervised-meta (meta task-var)))
-  (add-hook task-var :key supervisor#))
+  (add-hook task-var ::supervisor-hook-key supervisor#))
+
+(defn remove-supervise
+  "Clears supervise hook from task-var."
+  [task-var]
+  (remove-hook task-var ::supervisor-hook-key))
 
 (defn with-handler!
   "Same as with-handler, but task-var can be invoked without supervise. (e.g. (task-var args))"
@@ -203,6 +253,14 @@
      (with-handler task-var exception-selector handler-fn)
      (hook-supervisor-to-fn task-var)))
 
+(defn remove-handler!
+  "Removes from task-var any handler registered with exception-selector
+   through with-handler!"
+  [task-var exception-selector]
+  (remove-handler task-var exception-selector)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
+
 (defn with-finally!
   "Same as with-finally, but task-var can be invoked without supervise."
   ([task-var docstring? finally-fn]
@@ -210,6 +268,13 @@
   ([task-var finally-fn]
      (with-finally task-var finally-fn)
      (hook-supervisor-to-fn task-var)))
+
+(defn remove-finally!
+  "Removes from task-var a registered finally clause through with-finally!"
+  [task-var]
+  (remove-finally task-var)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
 
 (defn with-precondition!
   "Same as with-precondition, but task-var can be invoked without supervise."
@@ -219,6 +284,14 @@
      (with-precondition task-var description pred-fn)
      (hook-supervisor-to-fn task-var)))
 
+(defn remove-precondition!
+  "Removes from task-var a precondition matching description registered
+   through with-precondition!"
+  [task-var description]
+  (remove-precondition task-var description)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
+
 (defn with-postcondition!
   "Same as with-postcondition, but task-var can be invoked without supervise."
   ([task-var docstring? description pred-fn]
@@ -226,6 +299,14 @@
   ([task-var description pred-fn]
      (with-postcondition task-var description pred-fn)
      (hook-supervisor-to-fn task-var)))
+
+(defn remove-postcondition!
+  "Removes from task-var a postcondition matching description registered
+   through with-postcondition!"
+  [task-var description]
+  (remove-postcondition task-var description)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
 
 (defn with-pre-hook!
   "Same as with-pre-hook, but task-var can be invoked without supervise."
@@ -235,6 +316,14 @@
      (with-pre-hook task-var f)
      (hook-supervisor-to-fn task-var)))
 
+(defn remove-pre-hook!
+  "Removes any pre-hook function f from task-var registered through
+   with-pre-hook!"
+  [task-var f]
+  (remove-pre-hook task-var f)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
+
 (defn with-eager-pre-hook!
   "Same as with-eager-pre-hook, but task-var can be invoked without supervise."
   ([task-var docstring? f]
@@ -243,6 +332,14 @@
      (with-eager-pre-hook task-var f)
      (hook-supervisor-to-fn task-var)))
 
+(defn remove-eager-pre-hook!
+  "Removes any eager pre-hook function f from task-var registered through
+   with-eager-pre-hook!"
+  [task-var f]
+  (remove-eager-pre-hook task-var f)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
+
 (defn with-post-hook!
   "Same as with-post-hook, but task-var can be invoked without supervise."
   ([task-var docstring? f]
@@ -250,3 +347,12 @@
   ([task-var f]
      (with-post-hook task-var f)
      (hook-supervisor-to-fn task-var)))
+
+(defn remove-post-hook!
+  "Removes any post-hook function f from task-var registered through
+   with-post-hook!"
+  [task-var f]
+  (remove-post-hook task-var f)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
+
