@@ -193,6 +193,26 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (times 21 2) ; => "Result was 42"
 ```
 
+### Wrap-hooks
+```clojure
+(defn fake-db-query
+  "A fake database query that sometimes fails"
+  [query]
+  (rand-nth [nil "valid-data"]))
+             
+(with-wrap-hook! #'fake-db-query
+  "An optional docstring."
+  (fn [result [query]]
+    (if (not-empty result)
+      result
+      (println "Got the result" result "for input" query))))
+
+(fake-db-query "select * from data") ; => "valid-data"
+(fake-db-query "select * from data")
+; => Got the result nil for input select * from data
+; => nil
+```
+
 ## Usage: Erlang Style with supervise
 
 ### Simple Example
@@ -322,6 +342,25 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   (fn [result] (println "Result was" result)))
 
 (supervise #'times 21 2) ; => "Result was 42"
+```
+
+### Wrap-hooks
+```clojure
+(defn fake-db-query
+  "A fake database query that sometimes fails"
+  [query]
+  (rand-nth [nil "valid-data"]))
+             
+(defn check-result
+  [result [query]]
+  (if (not-empty result)
+    result
+    (println "Got the result" result "for input" query)))
+
+(supervise #'fake-db-query "select * from data") ; => "valid-data"
+(supervise #'fake-db-query "select * from data")
+; => Got the result nil for input select * from data
+; => nil
 ```
 
 ## Etc
