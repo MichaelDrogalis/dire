@@ -9,7 +9,6 @@
   "Catches divide by 0 errors."
   java.lang.ArithmeticException
   (fn [e & args] :division-by-zero-handler))
-
 (with-handler #'divider
   java.lang.NullPointerException
   (fn [e & args] :npe-handler))
