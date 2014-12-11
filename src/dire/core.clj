@@ -111,6 +111,21 @@
   [task-var f]
   (alter-meta! task-var disj-from-set-at-key :dire/post-hooks f))
 
+(defn with-wrap-hook
+  "After task-var is invoked and postconditions run, wrap-hooks will
+   run before post-hooks. You can register any number of wrap-hooks,
+   and they are not guaranteed to run in any specific order. Useful for
+  logging the return value of a function alongside its arguments."
+  ([task-var docstring? f]
+   (with-wrap-hook task-var f))
+  ([task-var f]
+   (alter-meta! task-var update-in [:dire/wrap-hooks] (fnil conj #{}) f)))
+
+(defn remove-wrap-hook
+  "Removes any registered wrap-hook function f from task-var."
+  [task-var f]
+  (alter-meta! task-var disj-from-set-at-key :dire/wrap-hooks f))
+
 (defn- eval-preconditions
   [task-metadata & args]
   (doseq [[pre-name pre-fn] (:dire/preconditions task-metadata)]
@@ -121,6 +136,11 @@
   (doseq [[post-name post-fn] (:dire/postconditions task-metadata)]
     (when-not (post-fn result)
       (throw+ {:type ::postcondition :postcondition post-name :result result}))))
+
+(defn- eval-wrap-hooks
+  [task-metadata result & args]
+  (doseq [f (:dire/wrap-hooks task-metadata)]
+    (f result args)))
 
 (defn- eval-eager-pre-hooks [task-metadata & args]
   (doseq [f (:dire/eager-pre-hooks task-metadata)]
@@ -219,6 +239,7 @@
    (apply eval-pre-hooks task-meta args)
    (let [result (apply task-var args)]
      (apply eval-postconditions task-meta result args)
+     (apply eval-wrap-hooks task-meta result args)
      (eval-post-hooks task-meta result)
      result)
    (catch [:type :dire.core/precondition] {:as conditions}
@@ -356,3 +377,17 @@
   (remove-supervise task-var)
   (hook-supervisor-to-fn task-var))
 
+(defn with-wrap-hook!
+  "Same as with-wrap-hook, but task-var can be invoked without supervise."
+  ([task-var docstring? f] (with-wrap-hook! task-var f))
+  ([task-var f]
+   (with-wrap-hook task-var f)
+   (hook-supervisor-to-fn task-var)))
+
+(defn remove-wrap-hook!
+  "Removes any wrap-hook function f from task-var registered through
+   with-wrap-hook!"
+  [task-var f]
+  (remove-wrap-hook task-var f)
+  (remove-supervise task-var)
+  (hook-supervisor-to-fn task-var))
