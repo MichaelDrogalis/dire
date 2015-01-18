@@ -47,9 +47,8 @@
 
 ;;; Public API
 (defn apply-dire-meta!
-  [fn]
-  (let [fn-var (resolve fn)
-        preconditions (-> fn-var meta ::preconditions)
+  [fn-var]
+  (let [preconditions (-> fn-var meta ::preconditions)
         pre-handlers (-> fn-var meta ::handlers ::pre-handlers)
         eager-pre-hooks (-> fn-var meta ::eager-pre-hooks)
         wrap-hooks (-> fn-var meta ::wrap-hooks)]
@@ -58,12 +57,11 @@
     (doall (map #(apply-dire-wrap-hook! fn-var %) wrap-hooks))))
 
 (defn remove-dire!
-  [fn]
-  (let [fn-var (resolve fn)
-        preconditions (-> fn-var resolve meta ::preconditions)
-        pre-handlers (-> fn-var resolve meta ::handlers ::pre-handlers)
-        eager-pre-hooks (-> fn-var resolve meta ::eager-pre-hooks)
-        wrap-hooks (-> fn-var resolve meta ::wrap-hooks)]
+  [fn-var]
+  (let [preconditions (-> fn-var meta ::preconditions)
+        pre-handlers (-> fn-var meta ::handlers ::pre-handlers)
+        eager-pre-hooks (-> fn-var meta ::eager-pre-hooks)
+        wrap-hooks (-> fn-var meta ::wrap-hooks)]
     (doall (map #(remove-dire-pre! fn-var %) preconditions))
     (doall (map #(remove-dire-eager-pre-hook! fn-var %) eager-pre-hooks))
     (doall (map #(remove-dire-wrap-hook! fn-var %) wrap-hooks))))
