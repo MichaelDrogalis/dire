@@ -117,9 +117,9 @@
    and they are not guaranteed to run in any specific order. Useful for
   logging the return value of a function alongside its arguments."
   ([task-var docstring? f]
-   (with-wrap-hook task-var f))
+     (with-wrap-hook task-var f))
   ([task-var f]
-   (alter-meta! task-var update-in [:dire/wrap-hooks] (fnil conj #{}) f)))
+     (alter-meta! task-var update-in [:dire/wrap-hooks] (fnil conj #{}) f)))
 
 (defn remove-wrap-hook
   "Removes any registered wrap-hook function f from task-var."
@@ -249,7 +249,7 @@
    (catch (generate-catch-predicate task-meta) e
      (apply-handler task-meta e args))
    (finally
-     (apply eval-finally task-meta args))))
+    (apply eval-finally task-meta args))))
 
 (defn supervise
   "Invokes task-var with args as the parameters. If any exceptions are raised,
@@ -381,8 +381,8 @@
   "Same as with-wrap-hook, but task-var can be invoked without supervise."
   ([task-var docstring? f] (with-wrap-hook! task-var f))
   ([task-var f]
-   (with-wrap-hook task-var f)
-   (hook-supervisor-to-fn task-var)))
+     (with-wrap-hook task-var f)
+     (hook-supervisor-to-fn task-var)))
 
 (defn remove-wrap-hook!
   "Removes any wrap-hook function f from task-var registered through
@@ -391,3 +391,4 @@
   (remove-wrap-hook task-var f)
   (remove-supervise task-var)
   (hook-supervisor-to-fn task-var))
+
