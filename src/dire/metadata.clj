@@ -67,3 +67,18 @@
     (doall (map #(remove-dire-pre fn-var %) preconditions))
     (doall (map #(remove-dire-eager-pre-hook fn-var %) eager-pre-hooks))
     (doall (map #(remove-dire-wrap-hook fn-var %) wrap-hooks))))
+
+;;; Testing code
+(defn precondition {::pre-name :pre} [a b] (prn "precond:") false)
+(defn pre-handler {::pre-name :pre} [_ a b] (prn "handler:"))
+(defn wrap-hook [r [a b]] (prn "wrap:"))
+(defn eager-pre-hook [a b] (prn "eager:"))
+
+(defn ^{::preconditions '[precondition]
+        ::handlers {::pre-handlers '[pre-handler]}
+        ::eager-pre-hooks '[eager-pre-hook]
+        ::wrap-hooks '[wrap-hook]}
+  test-fn
+  "Docstring"
+  [a b]
+  (/ a b))
