@@ -43,7 +43,7 @@
   [fn-var pre-cond-fn]
   (let [pre-cond-name (-> pre-cond-fn resolve meta ::pre-name)]
     (remove-precondition! fn-var pre-cond-name)
-    (remove-handler! fn-var pre-cond-name)))
+    (remove-handler! fn-var {:precondition pre-cond-name})))
 
 ;;; Public API
 (defn apply-dire-meta!
