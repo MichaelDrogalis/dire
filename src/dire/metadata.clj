@@ -30,3 +30,17 @@
       (-> correct-handler resolve meta :doc)
       {:precondition pre-cond-name}
       correct-handler)))
+
+(defn- remove-dire-wrap-hook
+  [fn-var hook-fn]
+  (dire/remove-wrap-hook! fn-var hook-fn))
+
+(defn- remove-dire-eager-pre-hook
+  [fn-var hook-fn]
+  (dire/remove-eager-pre-hook! fn-var hook-fn))
+
+(defn- remove-dire-pre
+  [fn-var pre-cond-fn]
+  (let [pre-cond-name (-> pre-cond-fn resolve meta ::pre-name)]
+    (dire/remove-precondition! fn-var pre-cond-name)
+    (dire/remove-handler! fn-var pre-cond-name)))
