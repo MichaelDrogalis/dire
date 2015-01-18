@@ -44,3 +44,15 @@
   (let [pre-cond-name (-> pre-cond-fn resolve meta ::pre-name)]
     (dire/remove-precondition! fn-var pre-cond-name)
     (dire/remove-handler! fn-var pre-cond-name)))
+
+;;; Public API
+(defn apply-dire-meta
+  [fn]
+  (let [fn-var (resolve fn)
+        preconditions (-> fn-var meta ::preconditions)
+        pre-handlers (-> fn-var meta ::handlers ::pre-handlers)
+        eager-pre-hooks (-> fn-var meta ::eager-pre-hooks)
+        wrap-hooks (-> fn-var meta ::wrap-hooks)]
+    (doall (map #(apply-dire-pre fn-var pre-handlers %) preconditions))
+    (doall (map #(apply-dire-eager-pre-hook fn-var %) eager-pre-hooks))
+    (doall (map #(apply-dire-wrap-hook fn-var %) wrap-hooks))))
