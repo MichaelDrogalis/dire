@@ -1,6 +1,6 @@
 # dire <a href="https://travis-ci.org/MichaelDrogalis/dire"><img src="https://api.travis-ci.org/MichaelDrogalis/dire.png" /></a>
 
-Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions. 
+Decomplect error logic. Error handling, pre/post conditions and general hooks for Clojure functions.
 
 Ships with two flavors:
 
@@ -52,6 +52,22 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (divider 10 0) ; => "Cannot divide by 0."
 ```
 
+#### Multiple Exception Classes
+
+Sometimes it is desirable to check for any one of a number of exceptions:
+
+```clojure
+(with-handler! #'divider
+  "Here's an optional docstring about the handler."
+  [java.lang.ArithmeticException,
+   java.lang.NullPointerException]
+  ;;; 'e' is the exception object, 'args' are the original arguments to the task.
+  (fn [e & args] (println "Cannot divide by 0 or operate on nil values.")))
+
+(divider 10 nil) ; => "Cannot divide by 0 or operate on nil values."
+(divider 10 0)   ; => "Cannot divide by 0 or operate on nil values."
+```
+
 ### Try/Catch/Finally Semantics
 ```clojure
 (ns mytask
@@ -87,7 +103,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (with-handler! #'f
   [:type :db-disconnection]
   (fn [e & args] "Safe and sound"))
-  
+
 (f) ;; => "Safe and sound"
 ```
 
@@ -100,7 +116,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
 (with-handler! #'f
   even?
   (fn [e & args] "Caught it"))
-  
+
 (f) ;; => "Caught it"
 ```
 
@@ -118,7 +134,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   :not-two
   (fn [n & args]
     (not= n 2)))
-    
+
 (with-handler! #'add-one
   {:precondition :not-two}
   (fn [e & args] (apply str "Precondition failure for argument list: " (vector args))))
@@ -140,7 +156,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   :not-two
   (fn [n & args]
     (not= n 2)))
-    
+
 (with-handler! #'add-one
   {:postcondition :not-two}
   (fn [e result] (str "Postcondition failed for result: " result)))
@@ -199,7 +215,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   "A fake database query that sometimes fails"
   [query]
   (rand-nth [nil "valid-data"]))
-             
+
 (with-wrap-hook! #'fake-db-query
   "An optional docstring."
   (fn [result [query]]
@@ -350,7 +366,7 @@ Check out the Codox API docs [here](http://michaeldrogalis.github.com/dire/).
   "A fake database query that sometimes fails"
   [query]
   (rand-nth [nil "valid-data"]))
-             
+
 (defn check-result
   [result [query]]
   (if (not-empty result)

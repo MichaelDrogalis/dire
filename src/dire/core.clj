@@ -164,7 +164,12 @@
    :class-name
 
    (and (vector? selector)
-        (even? (count selector)))
+        (every? class? selector))
+   :class-names
+
+   (and (vector? selector)
+        (even? (count selector))
+        (every? keyword? (take-nth 2 selector)))
    :key-values
 
    (fn? selector)
@@ -176,6 +181,9 @@
 
 (defmethod selector-matches? :class-name [selector object]
   (instance? selector object))
+
+(defmethod selector-matches? :class-names [selectors object]
+  (some #(instance? % object) selectors))
 
 (defmethod selector-matches? :key-values [selector object]
   (let [key-val-tests (for [[key val] (partition 2 selector)]
